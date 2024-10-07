@@ -9,6 +9,8 @@
 .font_gray {color: #aaa;}
 .font_darkgray {color: #434343;}
 
+.disabled {background: #ddd; color: #555;}
+
 .content {padding: 30px 0;}
 
 #login .input_box input:focus, 
@@ -51,7 +53,7 @@
 #join .input_box div .id_box .repeat_btn {border-radius: 2px; border: 1px solid #ccc; padding: 7px 6px; font-size: 12px; color: #444;}
 #join .input_box .my_box {position: relative; margin-top: 20px;}
 #join .input_box .my_box::before {content: ''; position: absolute; top: -5px; left: 50%; transform: translateX(-50%); display: inline-block; width: 100%; height: 1px; background-color: #ccc;}
-#join .input_box .my_box .passwd_noti {margin-top: 10px; font-size: 14px; color: #555;}
+#join .input_box .my_box .passwd_noti {position: absolute; bottom: 7%; right: 3%; font-size: 12px;}
 
 /* header, footer */
 header {display: flex; align-items: center; justify-content: space-between; padding: 20px 0;}
@@ -228,7 +230,7 @@ footer p {margin-top: 16px; font-size: 14px; text-align: center; color: #666;}
     #join .input_box div .id_box .repeat_btn {border-radius: 0.1389vw; border: 0.0694vw solid #ccc; padding: 0.4861vw 0.4167vw; font-size: 0.8333vw;}
     #join .input_box .my_box {margin-top: 1.3889vw;}
     #join .input_box .my_box::before {top: -0.3472vw; height: 0.0694vw;}
-    #join .input_box .my_box .passwd_noti {margin-top: 0.6944vw; font-size: 0.9722vw;}
+    #join .input_box .my_box .passwd_noti {font-size: 0.8333vw;}
 
     /* header, footer */
     header {padding: 1.3889vw 0;}

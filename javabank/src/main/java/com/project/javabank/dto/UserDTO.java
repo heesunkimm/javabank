@@ -8,6 +8,8 @@ public class UserDTO {
 	private String userEmail;
 	private String userTel;
 	private String userRegDate;
+	private String userEnable;
+	private String userAuthority;
 	
 	public String getUserId() {
 		return userId;
@@ -50,5 +52,17 @@ public class UserDTO {
 	}
 	public void setUserRegDate(String userRegDate) {
 		this.userRegDate = userRegDate;
+	}
+	public String getUserEnable() {
+		return userEnable;
+	}
+	public void setUserEnable(String userEnable) {
+		this.userEnable = userEnable;
+	}
+	public String getUserAuthority() {
+		return userAuthority;
+	}
+	public void setUserAuthority(String userAuthority) {
+		this.userAuthority = userAuthority;
 	}
 }

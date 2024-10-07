@@ -48,8 +48,8 @@
             <div class="join_box">
                 <a class="join_btn" href="/join">회원가입</a>
                 <ul class="find_box">
-                    <li><a href="javascript:;">아이디찾기</a></li>
-                    <li><a href="javascript:;">비밀번호찾기</a></li>
+                    <li><a class="findId_btn popup_btn" href="javascript:;" data-popup="findbyid">아이디찾기</a></li>
+                    <li><a class="findPw_btn popup_btn" href="javascript:;" data-popup="findbypw">비밀번호찾기</a></li>
                 </ul>
             </div>
         </form>

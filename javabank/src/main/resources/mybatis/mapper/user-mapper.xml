@@ -3,18 +3,34 @@
 
 <mapper namespace="mybatis.javabank.user-mapper">
     <!-- 로그인 -->
-    <!--<select id="findUserByLogin" parameterType="String" resultType="UserDTO">
+    <select id="findUserByLogin" parameterType="String" resultType="UserDTO">
     	select * from javabankUser where userId = #{userId}
-    </select>-->
-    
-    <!-- 아이디 중복체크 -->
-    <select id="idCheck" parameterType="String" resultType="int">
-    	select count(*) from javabankUser where userId = #{userId}
     </select>
     
     <!--<select id="getUserInfo" parameterType="String" resultType="UserDTO">
     	select * from javabankUser where userId = #{userId}
     </select>-->
     
+    <select id="findUserByEmail" parameterType="String" resultType="UserDTO">
+		select userEmail, userPw from javabankUser where userEmail = #{userEmail}
+	</select>
+    
+    <!-- 이메일 중복체크 -->
+	<select id="checkEmail" parameterType="String" resultType="int">
+		select count(*) from javabankUser where userEmail = #{userEmail}
+	</select>
+    
+    <!-- 아이디 중복체크 -->
+    <select id="idCheck" parameterType="String" resultType="int">
+    	select count(*) from javabankUser where userId = #{userId}
+    </select>
+	
+	<!-- 회원가입 -->
+    <insert id="insertUser" parameterType="java.util.Map">
+	    INSERT INTO javabankUser (userId, userPw, userName, userBirth, userEmail, userTel, userRegDate, userEnable, userAuthority)
+	    VALUES (#{userId}, #{userPw}, #{userName}, #{userBirth}, #{userEmail}, #{userTel}, default, default, default)
+	</insert>
+
+	
     
 </mapper>
