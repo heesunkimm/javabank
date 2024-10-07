@@ -7,10 +7,6 @@
     	select * from javabankUser where userId = #{userId}
     </select>
     
-    <!--<select id="getUserInfo" parameterType="String" resultType="UserDTO">
-    	select * from javabankUser where userId = #{userId}
-    </select>-->
-    
     <select id="findUserByEmail" parameterType="String" resultType="UserDTO">
 		select userEmail, userPw from javabankUser where userEmail = #{userEmail}
 	</select>

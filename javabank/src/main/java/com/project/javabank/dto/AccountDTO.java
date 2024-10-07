@@ -14,6 +14,7 @@ public class AccountDTO {
 	private String expiryDate;
 	private int interestRate;
 	private int interestAmount;
+	private String accountLimit;
 	private String mainAccount;
 	
 	public String getDepositAccount() {
@@ -93,6 +94,12 @@ public class AccountDTO {
 	}
 	public void setInterestAmount(int interestAmount) {
 		this.interestAmount = interestAmount;
+	}
+	public String getAccountLimit() {
+		return accountLimit;
+	}
+	public void setAccountLimit(String accountLimit) {
+		this.accountLimit = accountLimit;
 	}
 	public String getMainAccount() {
 		return mainAccount;

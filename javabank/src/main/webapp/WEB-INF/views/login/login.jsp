@@ -54,13 +54,98 @@
             </div>
         </form>
     </section>
+    <!-- 아이디찾기 팝업 -->
+    <div id="findbyid" class="popup_box" style="display: none;">
+       <p class="popup_title">아이디 찾기</p>
+       <form name="f" action="findIdbyEmail" method="post">
+           <div class="input_box">
+               <div class="email_box">
+                   <label>
+                       <input type="text" name="email01" value="" placeholder="이메일입력" required>
+                   </label>
+                   <label>
+                       <select name="userEmail2" class="email02">
+                           <option value="naver.com">@naver.com</option>
+                           <option value="nate.com">@nate.com</option>
+                           <option value="gmail.com">@gmail.com</option>
+                       </select>
+                   </label>
+                   <input type="hidden" name="userEmail" value="">
+                   <button type="button" class="confirm_btn">인증번호 발송</button>
+               </div>
+           </div>
+           <!-- s: 인증번호 박스 -->
+           <div class="comfirm_box" style="display: none;">
+               <label>
+                   <input type="text" name="confirmNum" placeholder="인증번호 입력" required>
+                   <div class="count_box">
+                       <p>3:00</p>
+                   </div>
+               </label>
+               <button class="confirm_btn" type="button">인증확인</button>
+           </div>
+           <!-- e: 인증번호 박스 -->
+           <div class="pbtn_box">
+               <button class="submit_btn" type="submit">확인</button>
+               <button class="close_btn" type="button" data-popup="findbyid">취소</button>
+           </div>
+       </form>
+   </div>
+   <!-- 비밀번호찾기 팝업 -->
+    <div id="findbypw" class="popup_box" style="display: none;">
+        <p class="popup_title">비밀번호 찾기</p>
+        
+        <form name="f" action="findPwbyEmail" method="post">
+            <div class="input_box">
+                <label>
+                    <input type="text" class="userInputId" name="findbypw_id" value="" placeholder="아이디 입력" required>
+                </label>
+                <div class="email_box">
+                   <label>
+                       <input type="text" name="email01" value="" placeholder="이메일입력" required>
+                   </label>
+                   <label>
+                       <select name="userEmail2" class="email02">
+                           <option value="naver.com">@naver.com</option>
+                           <option value="nate.com">@nate.com</option>
+                           <option value="gmail.com">@gmail.com</option>
+                       </select>
+                   </label>
+                   <input type="hidden" name="userEmail" value="">
+                   <button type="button" class="confirm_btn">인증번호 발송</button>
+            	</div>
+            </div>
+            <!-- s: 인증번호 박스 -->
+            <div class="comfirm_box" style="display: none;">
+                <label>
+                    <input type="text" name="confirmNum" placeholder="인증번호 입력" required>
+                    <div class="count_box">
+                        <p>3:00</p>
+                    </div>
+                </label>
+                <button class="confirm_btn" type="button">인증확인</button>
+            </div>
+            <!-- e: 인증번호 박스 -->
+            <div class="pbtn_box">
+                <button class="submit_btn" type="submit">확인</button>
+                <button class="close_btn" type="button" data-popup="findbypw">취소</button>
+            </div>
+        </form>
+    </div>
+    <div class="dimm"></div>
 </body>
 <script>
 	$(document).ready(function() {
-		//정규표현식 변환
+		// 비밀번호 정규표현식 변환
 		$("input[name='userId'], input[name='userPw']").keyup(function() {
 			let reg_txt = $(this).val().replace(/[^a-zA-Z0-9]/g, '');
 		    $(this).val(reg_txt);
+		});
+		// 이메일 정규표현식 변환
+		$("input[name='email01']").keyup(function() {
+			let email01 = $(this).val().replace(/[^a-zA-Z0-9]/g, '');
+			$(this).val(email01);
+			let userEmail = $("input[name='email01']").val() + $("select[name='email02']").val();
 		});
 		
 	    $(".login_btn").on("click", function(e) {

@@ -2,7 +2,14 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="mybatis.javabank.javabank-mapper">
-    <!-- <select id="" resultType="">
-         
-    </select> -->
+	<!-- 입출금계좌 생성 -->
+    <insert id="addAccount" parameterType="java.util.Map">
+	    insert into javabankAccount 
+	    (depositAccount, depositPw, userId, accountBalance, interestRate, accountLimit, mainAccount) 
+	    values (#{depositAccount}, #{depositPw}, #{userId}, #{accountBalance}, #{interestRate}, #{accountLimit}, #{mainAccount})
+	</insert>
+	
+	<select id="checkAccount" parameterType="String" resultType="AccountDTO">
+		select count(*) from javabankAccount where depositAccount = #{depositAccount}
+	</select>
 </mapper>

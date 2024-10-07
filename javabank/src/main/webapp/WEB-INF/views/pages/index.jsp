@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <jsp:include page="index_top.jsp"/>
 	<!-- s: content -->
     <section id="main" class="content">
@@ -7,7 +8,7 @@
             <p class="account_tit">내 계좌</p>
             <ul>
                 <li class="nolist">
-                    <a href="javascript:;">
+                    <a href="add_account">
                         <p>등록된 계좌가 없습니다. 계좌를 추가해주세요.</p>
                         <div class="img_box">
                             <img src="../../images/icons/account.png">
