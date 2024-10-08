@@ -2,13 +2,14 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="mybatis.javabank.user-mapper">
-    <!-- 로그인 -->
-    <select id="findUserByLogin" parameterType="String" resultType="UserDTO">
-    	select * from javabankUser where userId = #{userId}
-    </select>
-    
+	<!-- DB에 ID가 있는지 확인 -->
+	<select id="findUsernameById" parameterType="String" resultType="UserDTO">
+		select * from javabankUser where userId = #{userId}
+	</select>
+	
+	<!-- 이메일로 등록된 이메일, 비밀번호, 아이디 찾기  -->
     <select id="findUserByEmail" parameterType="String" resultType="UserDTO">
-		select userEmail, userPw from javabankUser where userEmail = #{userEmail}
+		select userEmail, userPw, userId from javabankUser where userEmail = #{userEmail}
 	</select>
     
     <!-- 이메일 중복체크 -->
@@ -17,16 +18,15 @@
 	</select>
     
     <!-- 아이디 중복체크 -->
-    <select id="idCheck" parameterType="String" resultType="int">
+   	<select id="idCheck" parameterType="String" resultType="int">
     	select count(*) from javabankUser where userId = #{userId}
     </select>
-	
-	<!-- 회원가입 -->
-    <insert id="insertUser" parameterType="java.util.Map">
-	    INSERT INTO javabankUser (userId, userPw, userName, userBirth, userEmail, userTel, userRegDate, userEnable, userAuthority)
-	    VALUES (#{userId}, #{userPw}, #{userName}, #{userBirth}, #{userEmail}, #{userTel}, default, default, default)
-	</insert>
 
+    <!-- 회원가입 -->
+    <insert id="joinUser" parameterType="java.util.Map">
+    	insert into javabankUser (userId, userPw, userName, userBirth, userEmail, userTel, userRoles, userRegDate)
+    	values (#{userId}, #{userPw}, #{userName}, #{userBirth}, #{userEmail}, #{userTel}, 'USER', SYSDATE)
+    </insert>
 	
     
 </mapper>

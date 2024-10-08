@@ -92,6 +92,12 @@
 			<artifactId>ojdbc11</artifactId>
 			<scope>runtime</scope>
 		</dependency>
+		<!--security-->
+		<dependency>
+		    <groupId>org.springframework.boot</groupId>
+		    <artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+		<!-- mailsender -->
 		<dependency>
 		    <groupId>org.springframework.boot</groupId>
 		    <artifactId>spring-boot-starter-mail</artifactId>

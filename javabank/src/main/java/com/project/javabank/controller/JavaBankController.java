@@ -6,27 +6,41 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import org.apache.catalina.mapper.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.project.javabank.dto.AccountDTO;
-import com.project.javabank.dto.UserDTO;
 import com.project.javabank.mapper.JavaBankMapper;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 @Controller
 public class JavaBankController {
 
 	@Autowired
 	private JavaBankMapper mapper;
+	
+	@GetMapping("/index")
+	public String index(@AuthenticationPrincipal User user,
+						@RequestParam(value="javabank", required=false) String javabank, Model model) {
+		// 로그인 정보 꺼내기
+		model.addAttribute("loginId", user.getUsername());
+		model.addAttribute("loginRoles", user.getAuthorities());
+		
+		if (javabank != null) {
+		    	model.addAttribute("msg", user.getUsername()+"님 환영합니다.");
+		} 
+		
+		
+		return "pages/index";
+	}
 	
 	
 	@RequestMapping("add_account")
@@ -73,18 +87,14 @@ public class JavaBankController {
 		params.put("accountLimit", accountLimit);
 		params.put("mainAccount", mainAccount);
 		
-		int res = mapper.checkAccount(depositAccount);
-		
-		// 계좌번호 존재시
-		if(res > 0) {
-			
-		}else {
-			
-		}
-        
-
-		
-		
+//		int res = mapper.checkAccount(depositAccount);
+//		
+//		// 계좌번호 존재시
+//		if(res > 0) {
+//			
+//		}else {
+//			
+//		}
 		
 		return "pages/add_account";
 	}

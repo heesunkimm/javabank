@@ -13,12 +13,12 @@ public class UserMapper {
 
 	@Autowired
 	private SqlSession sqlSession;
-	
-	// 로그인
-	public UserDTO findUserByLogin(String userId) {
-		return sqlSession.selectOne("findUserByLogin", userId);
+
+	// 회원가입
+	public int joinUser(Map<String, Object> params) {
+		return sqlSession.insert("joinUser", params);
 	}
-	//
+	
 	public UserDTO findUserByEmail(String userEmail) {
 		return sqlSession.selectOne("findUserByEmail", userEmail);
 	}
@@ -29,9 +29,5 @@ public class UserMapper {
 	// 아이디 중복체크
 	public int idCheck(String userId) {
 		return sqlSession.selectOne("idCheck", userId);
-	}
-	// 회원가입
-	public int insertUser(Map<String, Object> params) {
-		return sqlSession.insert("insertUser", params);
 	}
 }
