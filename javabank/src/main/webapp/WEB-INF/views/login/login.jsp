@@ -20,6 +20,7 @@
             </div>
             
             <div class="input_box">
+            	<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
                 <label>
                 <c:if test="${empty cookie['saveId']}">
                   	<input type="text" name="userId" value="" placeholder="ID" required>
