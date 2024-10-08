@@ -21,6 +21,7 @@
             
             <div class="input_box">
                 <div class="info_box">
+                	<input class="csrfToken" type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
                     <label>
                         <input type="text" name="userName" placeholder="이름" maxlength="10"; required>
                     </label>
@@ -127,6 +128,7 @@
 	
 	// 인증받기 버튼 클릭시
 	$(".confirm_btn--01").on("click", function() {
+	    let csrfToken = $(".csrfToken").val();
 	    let email01 = $("input[name='email01']").val();
 	    let email02 = $("select[name='email02']").val();
 	    let addEmail = email01 + email02;
@@ -147,6 +149,9 @@
 	    $.ajax({
 	        url: "/mailCheck.ajax",
 	        type: "POST",
+	        headers: {
+	            "X-CSRF-TOKEN": csrfToken
+	        }, 
 	        data: {userEmail: userEmail},
 	        success: function(res) {
 	            if (res === 'OK') {
@@ -161,7 +166,10 @@
 	                // 이메일 전송 AJAX 요청
 	                $.ajax({
 	                    url: "/sendEmail.ajax",
-	                    type: "POST",
+	                    type: "POST", 
+	        	        headers: {
+	        	            "X-CSRF-TOKEN": csrfToken
+	        	        }, 
 	                    data: { userEmail: userEmail },
 	                    success: function(res) {
 	                        if (res === 'OK') {
@@ -220,9 +228,13 @@
 	
 	// 인증확인 버튼 클릭시
 	$(".confirm_btn--02").on("click", function() {
-	    let code = $("input[name='confirmNum']").val();
+	    let csrfToken = $(".csrfToken").val();
+		let code = $("input[name='confirmNum']").val();
 	    if(!timeout){
 	    	$.ajax({
+		        headers: {
+		            "X-CSRF-TOKEN": csrfToken
+		        },
 	            url: '/codeCheck.ajax',
 	            type: 'POST',
 	            data: {code: code},
