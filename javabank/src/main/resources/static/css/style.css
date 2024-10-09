@@ -90,13 +90,13 @@ footer p {margin-top: 16px; font-size: 14px; text-align: center; color: #666;}
 /* main */
 #main .account_box, #main .account_box ul  {margin-top: 20px;}
 #main .account_box .account_tit {font-size: 20px;}
-#main .account_box ul li {border-radius: 8px; padding: 30px 16px;}
+#main .account_box ul li {border-radius: 8px;}
 
-#main .account_box ul .nolist {display: inline-block; border: 1px solid #ccc; }
-#main .account_box ul .nolist a {display: flex; align-items: center; gap: 8px; font-size: 18px;}
+#main .account_box ul .nolist {display: inline-block; border: 1px solid #ccc;}
+#main .account_box ul .nolist a {display: flex; align-items: center; gap: 8px; font-size: 18px; padding: 30px 16px;}
 #main .account_box ul .nolist .img_box {width: 40px;}
 
-#main .account_box ul .account_item {display: flex; align-items: center; justify-content: space-between;}
+#main .account_box ul .account_item {display: flex; align-items: center; justify-content: space-between; padding: 30px 16px;}
 #main .account_box ul .account_item + .account_item {margin-top: 10px;}
 #main .account_box ul .account_item .txt_box .account_name {font-size: 18px; color: #222;}
 #main .account_box ul .account_item .txt_box .account_number {margin-top: 6px; font-size: 16px; color: #656565;}
@@ -174,8 +174,9 @@ footer p {margin-top: 16px; font-size: 14px; text-align: center; color: #666;}
 .add_bank form {padding-top: 20px;}
 .add_bank form > div:not(:last-child) {padding: 0 20px; display: flex; align-items: flex-start; gap: 20px; height: 100px;}
 .add_bank form div > p {font-size: 18px;}
-.add_bank form .passwd_box {display: flex; flex-direction: column;}
+.add_bank form .passwd_box {position: relative; display: flex; flex-direction: column;}
 .add_bank form .passwd_box label + label {margin-top: 10px;}
+.add_bank form .passwd_box .passwd_noti {position: absolute; right: -12%; bottom: 11%; font-size: 12px;}
 .add_bank form div input, 
 .add_bank form div select {padding: 4px 10px; font-size: 16px;}
 
@@ -273,12 +274,13 @@ footer p {margin-top: 16px; font-size: 14px; text-align: center; color: #666;}
     /* main */
     #main .account_box, #main .account_box ul  {margin-top: 1.3889vw;}
     #main .account_box .account_tit {font-size: 1.3889vw;}
-    #main .account_box ul li {border-radius: 0.5556vw; padding: 2.0833vw 1.1111vw;}
+    #main .account_box ul li {border-radius: 0.5556vw;}
 
     #main .account_box ul .nolist {border: 0.0694vw solid #ccc;}
-    #main .account_box ul .nolist a {gap: 0.5556vw; font-size: 1.2500vw;}
+    #main .account_box ul .nolist a {gap: 0.5556vw; font-size: 1.2500vw; padding: 2.0833vw 1.1111vw;}
     #main .account_box ul .nolist .img_box {width: 2.7778vw;}
 
+	#main .account_box ul .account_item {padding: 2.0833vw 1.1111vw;}
     #main .account_box ul .account_item + .account_item {margin-top: 0.6944vw;}
     #main .account_box ul .account_item .txt_box .account_name {font-size: 1.2500vw;}
     #main .account_box ul .account_item .txt_box .account_number {margin-top: 0.4167vw; font-size: 1.1111vw;}
@@ -350,6 +352,7 @@ footer p {margin-top: 16px; font-size: 14px; text-align: center; color: #666;}
     .add_bank form > div:not(:last-child) {padding: 0 1.3889vw; gap: 1.3889vw; height: 6.9444vw;}
     .add_bank form div > p {font-size: 1.2500vw;}
     .add_bank form .passwd_box label + label {margin-top: 0.6944vw;}
+    .add_bank form .passwd_box .passwd_noti {font-size: 0.8333vw;}
     .add_bank form div input, 
     .add_bank form div select {padding: 0.2778vw 0.6944vw; font-size: 1.1111vw;}
 

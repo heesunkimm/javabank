@@ -80,259 +80,257 @@
     </section>
 </body>
 <script>
-	// 이름 정규표현식 변환
-	$("input[name='userName']").keyup(function() {
-		let name = $(this).val().replace(/[^가-힣]/g, '');
-		$(this).val(name);
-	});
-	// 생년월일 정규표현식 변환
-	$("input[name='userBirth']").keyup(function() {
-	    let birth = $(this).val().replace(/[^0-9]/g, '');
-	
-	    if (birth.length < 5) {
-	        $(this).val(birth);
-	    } else if (birth.length < 7) {
-	        $(this).val(birth.replace(/(\d{4})(\d{1,2})/, '$1-$2'));
-	    } else {
-	        $(this).val(birth.replace(/(\d{4})(\d{2})(\d{1,2})/, '$1-$2-$3'));
-	    }
-	});
-	// 이메일 정규표현식 변환
-	$("input[name='email01']").keyup(function() {
-		let email01 = $(this).val().replace(/[^a-zA-Z0-9]/g, '');
-		$(this).val(email01);
-		let userEmail = $("input[name='email01']").val() + $("select[name='email02']").val();
-	});
-	// 휴대폰번호 정규표현식 변환
-	$("input[name='userTel']").keyup(function() {
-	    let tel = $(this).val().replace(/[^0-9]/g, '');
-	
-	    if (tel.length < 4) {
-	        $(this).val(tel);
-	    } else if (tel.length < 8) {
-	        $(this).val(tel.replace(/(\d{3})(\d{1,4})/, '$1-$2'));
-	    } else {
-	        $(this).val(tel.replace(/(\d{3})(\d{4})(\d{1,4})/, '$1-$2-$3'));
-	    }
-	});
-	// 비밀번호 정규표현식 변환
-	$("input[name='userPw'], input[name='userPw2']").keyup(function() {
-		let pw = $(this).val().replace(/[^a-zA-Z0-9]/g, '');
-	
-        $(this).val(pw);
-	});
-	
-	
-	let timer; // 타이머 변수
-	let timeout = false; // 타이머 만료 여부
-	
-	// 인증받기 버튼 클릭시
-	$(".confirm_btn--01").on("click", function() {
+	$(document).ready(function() {
+		// 이름 정규표현식 변환
+		$("input[name='userName']").keyup(function() {
+			let name = $(this).val().replace(/[^가-힣]/g, '');
+			$(this).val(name);
+		});
+		// 생년월일 정규표현식 변환
+		$("input[name='userBirth']").keyup(function() {
+		    let birth = $(this).val().replace(/[^0-9]/g, '');
+		
+		    if (birth.length < 5) {
+		        $(this).val(birth);
+		    } else if (birth.length < 7) {
+		        $(this).val(birth.replace(/(\d{4})(\d{1,2})/, '$1-$2'));
+		    } else {
+		        $(this).val(birth.replace(/(\d{4})(\d{2})(\d{1,2})/, '$1-$2-$3'));
+		    }
+		});
+		// 이메일 정규표현식 변환
+		$("input[name='email01']").keyup(function() {
+			let email01 = $(this).val().replace(/[^a-zA-Z0-9]/g, '');
+			$(this).val(email01);
+			let userEmail = $("input[name='email01']").val() + $("select[name='email02']").val();
+		});
+		// 휴대폰번호 정규표현식 변환
+		$("input[name='userTel']").keyup(function() {
+		    let tel = $(this).val().replace(/[^0-9]/g, '');
+		
+		    if (tel.length < 4) {
+		        $(this).val(tel);
+		    } else if (tel.length < 8) {
+		        $(this).val(tel.replace(/(\d{3})(\d{1,4})/, '$1-$2'));
+		    } else {
+		        $(this).val(tel.replace(/(\d{3})(\d{4})(\d{1,4})/, '$1-$2-$3'));
+		    }
+		});
+		// 비밀번호 정규표현식 변환
+		$("input[name='userPw'], input[name='userPw2']").keyup(function() {
+			let pw = $(this).val().replace(/[^a-zA-Z0-9]/g, '');
+		
+	        $(this).val(pw);
+		});
+		
+		
+		let timer; // 타이머 변수
+		let timeout = false; // 타이머 만료 여부
 	    let csrfToken = $(".csrfToken").val();
-	    let email01 = $("input[name='email01']").val();
-	    let email02 = $("select[name='email02']").val();
-	    let addEmail = email01 + email02;
-	
-	    $("input[name='userEmail']").val(addEmail);
-	    
-	    let userEmail = addEmail;
-	
-	    if (email01.trim() === '') {
-	        alert("이메일을 입력해주세요.");
-	        return;
-	    } else if (email01.trim().length < 6) {
-	        alert("형식에 맞는 이메일주소를 입력해주세요.");
-	        return;
-	    } 
-	
-	    // 중복 체크 AJAX 요청
-	    $.ajax({
-	        url: "/mailCheck.ajax",
-	        type: "POST",
-	        headers: {
-	            "X-CSRF-TOKEN": csrfToken
-	        }, 
-	        data: {userEmail: userEmail},
-	        success: function(res) {
-	            if (res === 'OK') {
-	                alert("사용 가능한 이메일 주소입니다.\n해당 이메일로 인증번호 발송되었습니다.");
-	                $(".comfirm_box").show();
-	                $("input[name='email01']").prop("disabled", true);
-	                $("select[name='email02']").prop("disabled", true);
-	                $(".confirm_btn--01").prop("disabled", true);
-	                $(".confirm_btn--01").addClass("disabled");
-	                Timer(); // 인증번호 발송 후 타이머 시작
-	
-	                // 이메일 전송 AJAX 요청
-	                $.ajax({
-	                    url: "/sendEmail.ajax",
-	                    type: "POST", 
-	        	        headers: {
-	        	            "X-CSRF-TOKEN": csrfToken
-	        	        }, 
-	                    data: { userEmail: userEmail },
-	                    success: function(res) {
-	                        if (res === 'OK') {
-	                            console.log("인증메일을 발송");
-	                        } else {
-	                            alert("이미 등록된 이메일. 확인필요.");
-	                        }
-	                    },
-	                    error: function(err) {
-	                        console.log(err);
-	        	            alert("서버 요청 실패.\n네트워크 상태를 확인해주세요.");
-	                    }
-	                });
-	            } else {
-	                alert("이미 사용중인 이메일입니다.");
-	                $("input[name='email01']").val(""); // 입력창 초기화
-	                $("input[name='email01']").focus(); // 포커스
-	            }
-	        },
-	        error: function(err) {
-	            console.error(err);
-	            alert("서버 요청 실패.\n네트워크 상태를 확인해주세요.");
-	        }
-	    });
-	});
-	// 인증번호입력 유효시간 타이머
-	function Timer() {
-	    let time = 180; // 3분
-	    timeout = false; // 타이머 시작 시 초기화
-	
-	    timer = setInterval(function() {
-	        let min = Math.floor(time / 60);
-	        let sec = time % 60;
-	        $(".count_box p").text(min + ":" + (sec < 10 ? '0' : '') + sec);
-	
-	        if (time <= 0) {
-	            clearInterval(timer); // 타이머 중지
-	            timeout = true; // 타이머 만료 설정
-	            $(".count_box p").text("3:00");
-	            $(".confirm_btn--01").text("재인증");
-	            $("input[name='email01']").prop("disabled", false);
-	            $("select[name='email02']").prop("disabled", false);
-	            $(".confirm_btn--01").prop("disabled", false);
-	            $(".confirm_btn--01").removeClass("disabled");
-	        }
-	        time--;
-	    }, 1000);
-	}
-	// 타이머 중지
-	function stopTimer() {
-	    if (timer) {
-	        clearInterval(timer);
-	        timer = null;
-	    }
-	}
-	
-	// 인증확인 버튼 클릭시
-	$(".confirm_btn--02").on("click", function() {
-	    let csrfToken = $(".csrfToken").val();
-		let code = $("input[name='confirmNum']").val();
-	    if(!timeout){
-	    	$.ajax({
-		        headers: {
-		            "X-CSRF-TOKEN": csrfToken
+		
+		// 인증받기 버튼 클릭시
+		$(".confirm_btn--01").on("click", function() {
+		    let email01 = $("input[name='email01']").val();
+		    let email02 = $("select[name='email02']").val();
+		    let addEmail = email01 + email02;
+		
+		    $("input[name='userEmail']").val(addEmail);
+		    
+		    let userEmail = addEmail;
+		    
+		    if (email01.trim() === '') {
+		        alert("이메일을 입력해주세요.");
+		        return;
+		    } else if (email01.trim().length < 6) {
+		        alert("형식에 맞는 이메일주소를 입력해주세요.");
+		        return;
+		    } 
+		
+		    // 중복 체크 AJAX 요청
+		    $.ajax({
+		        url: "/mailCheck.ajax",
+		        type: "POST",
+		        headers: {"X-CSRF-TOKEN": csrfToken}, 
+		        data: {
+		        	userEmail: userEmail
+		        	},
+		        success: function(res) {
+		            if (res === 'OK') {
+		                alert("사용 가능한 이메일 주소입니다.\n해당 이메일로 인증번호 발송되었습니다.");
+		                $(".comfirm_box").show();
+		                $("input[name='email01']").prop("disabled", true);
+		                $("select[name='email02']").prop("disabled", true);
+		                $(".confirm_btn--01").prop("disabled", true);
+		                $(".confirm_btn--01").addClass("disabled");
+		                Timer(); // 인증번호 발송 후 타이머 시작
+		
+		                // 이메일 전송 AJAX 요청
+		                $.ajax({
+		                    url: "/sendEmail.ajax",
+		                    type: "POST", 
+		        	        headers: {"X-CSRF-TOKEN": csrfToken}, 
+		                    data: {userEmail: userEmail},
+		                    success: function(res) {
+		                        if (res === 'OK') {
+		                            console.log("인증메일을 발송");
+		                        } else {
+		                            alert("이미 등록된 이메일. 확인필요.");
+		                        }
+		                    },
+		                    error: function(err) {
+		                        console.log(err);
+		        	            alert("서버 요청 실패.\n네트워크 상태를 확인해주세요.");
+		                    }
+		                });
+		            } else {
+		                alert("이미 사용중인 이메일입니다.");
+		                $("input[name='email01']").val(""); // 입력창 초기화
+		                $("input[name='email01']").focus(); // 포커스
+		            }
 		        },
-	            url: '/codeCheck.ajax',
-	            type: 'POST',
-	            data: {code: code},
-	            success: function (res) {
-	                if (res === 'OK') {
-	                    alert("인증 성공하였습니다.");
-	                    $("input[name='confirmNum']").prop("disabled", true);
-	                    $(".confirm_btn--02").prop("disabled", true);
-	    	            $(".confirm_btn--02").addClass("disabled");
-	                    stopTimer(); // 인증 성공 시 타이머 중지
-	                } else {
-	                    alert("인증 실패! 다시 입력해주세요.");
-	                }
-	            },
-	            error: function (err) {
-	                console.error(err);
-	            }
-	        });
-	    } else{
-	    	alert("인증시간이 초과되어 재인증이 필요합니다.")
-	    }
-	})
-	
-	// 아이디 중복체크
-	$(".repeat_btn").on("click", function() {
-	    let idVal = $("input[name='ID']").val().trim();
-	    $("input[name='userId']").val(idVal);
-	    let userId = $("input[name='userId']").val();
+		        error: function(err) {
+		            console.error(err);
+		            alert("서버 요청 실패.\n네트워크 상태를 확인해주세요.");
+		        }
+		    });
+		});
+		// 인증번호입력 유효시간 타이머
+		function Timer() {
+		    let time = 180; // 3분
+		    timeout = false; // 타이머 시작 시 초기화
 		
-		if (userId === '') {
-			alert("아이디를 입력해주세요");
-		}else {
-			$.ajax ({
-				type: "GET",
-				url: "/idCheck.ajax",
-				dataType: "text",
-				data: {userId : userId},
-				success: function(res) {
-					if(res == 0) {
-						alert("사용가능한 아이디입니다.");
-						$("input[name='ID']").prop("disabled", true);	
-						$(".repeat_btn").prop("disabled", true);
-						$(".repeat_btn").addClass("disabled");
-					}else {
-						alert("이미 사용중인 아이디입니다.");
+		    timer = setInterval(function() {
+		        let min = Math.floor(time / 60);
+		        let sec = time % 60;
+		        $(".count_box p").text(min + ":" + (sec < 10 ? '0' : '') + sec);
+		
+		        if (time <= 0) {
+		            clearInterval(timer); // 타이머 중지
+		            timeout = true; // 타이머 만료 설정
+		            $(".count_box p").text("3:00");
+		            $(".confirm_btn--01").text("재인증");
+		            $("input[name='email01']").prop("disabled", false);
+		            $("select[name='email02']").prop("disabled", false);
+		            $(".confirm_btn--01").prop("disabled", false);
+		            $(".confirm_btn--01").removeClass("disabled");
+		        }
+		        time--;
+		    }, 1000);
+		}
+		// 타이머 중지
+		function stopTimer() {
+		    if (timer) {
+		        clearInterval(timer);
+		        timer = null;
+		    }
+		}
+		
+		// 인증확인 버튼 클릭시
+		$(".confirm_btn--02").on("click", function() {
+		    let csrfToken = $(".csrfToken").val();
+			let code = $("input[name='confirmNum']").val();
+		    if(!timeout){
+		    	$.ajax({
+			        headers: {"X-CSRF-TOKEN": csrfToken},
+		            url: '/codeCheck.ajax',
+		            type: 'POST',
+		            data: {code: code},
+		            success: function (res) {
+		                if (res === 'OK') {
+		                    alert("인증 성공하였습니다.");
+		                    $("input[name='confirmNum']").prop("disabled", true);
+		                    $(".confirm_btn--02").prop("disabled", true);
+		    	            $(".confirm_btn--02").addClass("disabled");
+		                    stopTimer(); // 인증 성공 시 타이머 중지
+		                } else {
+		                    alert("인증 실패! 다시 입력해주세요.");
+		                }
+		            },
+		            error: function (err) {
+		                console.error(err);
+		            }
+		        });
+		    } else{
+		    	alert("인증시간이 초과되어 재인증이 필요합니다.")
+		    }
+		})
+		
+		// 아이디 중복체크
+		$(".repeat_btn").on("click", function() {
+		    let idVal = $("input[name='ID']").val().trim();
+		    $("input[name='userId']").val(idVal);
+		    let userId = $("input[name='userId']").val();
+			
+			if (userId === '') {
+				alert("아이디를 입력해주세요");
+			}else {
+				$.ajax ({
+					type: "GET",
+					url: "/idCheck.ajax",
+					dataType: "text",
+					data: {userId : userId},
+					success: function(res) {
+						if(res == 0) {
+							alert("사용가능한 아이디입니다.");
+							$("input[name='ID']").prop("disabled", true);	
+							$(".repeat_btn").prop("disabled", true);
+							$(".repeat_btn").addClass("disabled");
+						}else {
+							alert("이미 사용중인 아이디입니다.");
+						}
+					},error: function(err) {
+						console.log(err);
 					}
-				},error: function(err) {
-					console.log(err);
-				}
-			})
+				})
+			}
+		});
+		
+		// 비밀번호 일치여부 확인
+		$("input[name='userPw'], input[name='userPw2']").on("keyup", function() {
+			let userPw = $("input[name='userPw']").val();
+			let userPw2 = $("input[name='userPw2']").val();
+			
+			if(userPw != '' && userPw2 != '' && userPw === userPw2) {
+				$(".passwd_noti").text("일치").css("color", "#359176");
+			}else if (userPw != userPw2) {
+				$(".passwd_noti").text("불일치").css("color", "#fc5c50");
+			}else {
+				$(".passwd_noti").text("");
+			}
+		})
+		
+		// 회원가입 버튼 클릭시 유효성 체크
+		$('.join_btn').on('click', function() {
+			if($("input[name='userName']").val().trim() == '') {
+				return alert("이름을 입력해주세요.");
+			}else if ($("input[name='userBirth']").val().trim() == '') {
+				return alert("생년월을 입력해주세요.");
+			}else if ($("input[name='userTel']").val().trim() == '') {
+				return alert("휴대폰 번호 입력해주세요.");
+			}else if ($("input[name='email01']").val().trim() == '') {
+				return alert("이메일을 입력해주세요.");
+			}else if($("input[name='confirmNum']").val().trim() == '' && !$(".confirm_btn--02").hasClass("disabled")){
+				return alert("이메일 인증을 완료해주세요.");
+			}else if ($("input[name='userId']").val().trim() == '') {
+				return alert("아이디를 입력해주세요.");
+			}else if (!$(".repeat_btn").hasClass("disabled")) {
+				return alert("아이디 중복확인을 완료해주요.");
+			}else if ($("input[name='userPw']").val().trim() == '') {
+				return alert("비밀번호를 입력해주세요.");
+			}else if ($("input[name='userPw2']").val().trim() == '') {
+				return alert("비밀번호확인을 입력해주세요.");
+			}else if ($("input[name='userPw']").val().trim() != '' != $("input[name='userPw2']").val().trim() == '') {
+				return alert("비밀번호가 일치하지 않습니다.");
+			}
+			
+			$("form[name='joinForm']").submit();
+		});
+		
+		// msg가 존재하는 경우 alert
+		let msg = "${msg}";
+		if (msg != "") {
+			alert(msg);
 		}
 	});
-	
-	// 비밀번호 일치여부 확인
-	$("input[name='userPw'], input[name='userPw2']").on("keyup", function() {
-		let userPw = $("input[name='userPw']").val();
-		let userPw2 = $("input[name='userPw2']").val();
-		
-		if(userPw != '' && userPw2 != '' && userPw === userPw2) {
-			$(".passwd_noti").text("일치").css("color", "#359176");
-		}else if (userPw != userPw2) {
-			$(".passwd_noti").text("불일치").css("color", "#fc5c50");
-		}else {
-			$(".passwd_noti").text("");
-		}
-	})
-	
-	// 회원가입 버튼 클릭시 유효성 체크
-	$('.join_btn').on('click', function() {
-		if($("input[name='userName']").val().trim() == '') {
-			return alert("이름을 입력해주세요.");
-		}else if ($("input[name='userBirth']").val().trim() == '') {
-			return alert("생년월을 입력해주세요.");
-		}else if ($("input[name='userTel']").val().trim() == '') {
-			return alert("휴대폰 번호 입력해주세요.");
-		}else if ($("input[name='email01']").val().trim() == '') {
-			return alert("이메일을 입력해주세요.");
-		}else if($("input[name='confirmNum']").val().trim() == '' && !$(".confirm_btn--02").hasClass("disabled")){
-			return alert("이메일 인증을 완료해주세요.");
-		}else if ($("input[name='userId']").val().trim() == '') {
-			return alert("아이디를 입력해주세요.");
-		}else if (!$(".repeat_btn").hasClass("disabled")) {
-			return alert("아이디 중복확인을 완료해주요.");
-		}else if ($("input[name='userPw']").val().trim() == '') {
-			return alert("비밀번호를 입력해주세요.");
-		}else if ($("input[name='userPw2']").val().trim() == '') {
-			return alert("비밀번호확인을 입력해주세요.");
-		}else if ($("input[name='userPw']").val().trim() != '' != $("input[name='userPw2']").val().trim() == '') {
-			return alert("비밀번호가 일치하지 않습니다.");
-		}
-		
-		$("form[name='joinForm']").submit();
-	});
-	
-	// msg가 존재하는 경우 alert
-	let msg = "${msg}";
-	if (msg != "") {
-		alert(msg);
-	}
 </script>
 </html>
