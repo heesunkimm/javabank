@@ -128,17 +128,17 @@ public class UserController {
 	}
     
     // 이메일 중복 확인
-	 @ResponseBody
-	 @PostMapping("/mailCheck.ajax")
-	 public String checkId(String userEmail) {
-		 int res = userMapper.checkEmail(userEmail);
+	@ResponseBody
+	@PostMapping("/mailCheck.ajax")
+	public String checkId(String userEmail) {
+		int res = userMapper.checkEmail(userEmail);
 		 
-		 if(res == 0) {
-			 return "OK";
-		 }else {
-			 return "FAIL";
-		 }
-	 }
+		if(res == 0) {
+			return "OK";
+		}else {
+			return "FAIL";
+		}
+	}
     
 	 // 회원가입 이메일 인증 
  	 @ResponseBody
@@ -200,37 +200,4 @@ public class UserController {
 		int res = userMapper.idCheck(userId);
 		return res;
 	}
-	
-//	// 회원가입
-//	@PostMapping("/join")
-//	public String InsertMember(HttpServletRequest req, @ModelAttribute UserDTO dto) {
-//		String userId = dto.getUserId();
-//	    String userPw = dto.getUserPw();
-//	    String userName = dto.getUserName();
-//	    String userBirth = dto.getUserBirth();
-//	    String userEmail = dto.getUserEmail();
-//	    String userTel = dto.getUserTel();
-//		
-//		Map<String, Object> params = new HashMap<>();
-//
-//		params.put("userId", userId);
-//		params.put("userPw", userPw);
-//		params.put("userName", userName);
-//		params.put("userBirth", userBirth);
-//		params.put("userEmail", userEmail);
-//		params.put("userTel", userTel);
-//		
-//		System.out.println(params);
-//		
-//		int res = userMapper.insertUser(params);
-//		
-//		if(res > 0) {
-//			req.setAttribute("msg", "회원가입이 완료되었습니다.");
-//			return "pages/index";
-//		}else {
-//			req.setAttribute("msg", "회원가입 실패하였습니다.");
-//			return "redirect:/join";
-//		}
-//		
-//	}
 }

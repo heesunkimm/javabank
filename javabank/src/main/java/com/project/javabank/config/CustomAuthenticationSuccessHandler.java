@@ -24,7 +24,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 			cookie.setPath("/");
 			resp.addCookie(cookie);
 		} else {
-			Cookie cookie = new Cookie("saveID", "");
+			Cookie cookie = new Cookie("saveId", "");
 			cookie.setMaxAge(0);
 			cookie.setPath("/");
 			resp.addCookie(cookie);
