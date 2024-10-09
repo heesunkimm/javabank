@@ -2,7 +2,7 @@ package com.project.javabank.dto;
 
 public class AccountDTO {
 	private String depositAccount;
-	private int depositPw;
+	private String depositPw;
 	private String userId;
 	private String category;
 	private String updateDate;
@@ -14,7 +14,7 @@ public class AccountDTO {
 	private String expiryDate;
 	private int interestRate;
 	private int interestAmount;
-	private String accountLimit;
+	private int accountLimit;
 	private String mainAccount;
 	
 	public String getDepositAccount() {
@@ -23,10 +23,10 @@ public class AccountDTO {
 	public void setDepositAccount(String depositAccount) {
 		this.depositAccount = depositAccount;
 	}
-	public int getDepositPw() {
+	public String getDepositPw() {
 		return depositPw;
 	}
-	public void setDepositPw(int depositPw) {
+	public void setDepositPw(String depositPw) {
 		this.depositPw = depositPw;
 	}
 	public String getUserId() {
@@ -95,10 +95,10 @@ public class AccountDTO {
 	public void setInterestAmount(int interestAmount) {
 		this.interestAmount = interestAmount;
 	}
-	public String getAccountLimit() {
+	public int getAccountLimit() {
 		return accountLimit;
 	}
-	public void setAccountLimit(String accountLimit) {
+	public void setAccountLimit(int accountLimit) {
 		this.accountLimit = accountLimit;
 	}
 	public String getMainAccount() {

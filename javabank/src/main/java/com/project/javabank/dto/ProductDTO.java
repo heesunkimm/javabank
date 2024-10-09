@@ -2,7 +2,7 @@ package com.project.javabank.dto;
 
 public class ProductDTO {
 	private String productAccount;
-	private int productPw;
+	private String productPw;
 	private String userId;
 	private String category;
 	private String productType;
@@ -24,10 +24,10 @@ public class ProductDTO {
 	public void setProductAccount(String productAccount) {
 		this.productAccount = productAccount;
 	}
-	public int getProductPw() {
+	public String getProductPw() {
 		return productPw;
 	}
-	public void setProductPw(int productPw) {
+	public void setProductPw(String productPw) {
 		this.productPw = productPw;
 	}
 	public String getUserId() {
