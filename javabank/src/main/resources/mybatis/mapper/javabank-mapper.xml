@@ -2,14 +2,30 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="mybatis.javabank.javabank-mapper">
-	<!-- 입출금계좌 생성 -->
-    <insert id="addAccount" parameterType="java.util.Map">
-	    insert into javabankAccount 
-	    (depositAccount, depositPw, userId, accountBalance, interestRate, accountLimit, mainAccount) 
-	    values (#{depositAccount}, #{depositPw}, #{userId}, #{accountBalance}, #{interestRate}, #{accountLimit}, #{mainAccount})
-	</insert>
-	
-	<select id="checkAccount" parameterType="String" resultType="AccountDTO">
+	<!-- 로그인 유저의 입출금 계좌리스트 -->
+	<select id="loginUserAccount" parameterType="String" resultType="AccountDTO">
+		select * from javabankAccount where userId = #{userId}
+	</select>
+	<!-- 로그인 유저의 예적금 계좌리스트 -->
+	<select id="loginUserProduct" parameterType="String" resultType="ProductDTO">
+		select * from javabankProduct where userId = #{userId}
+	</select>
+	<!-- 로그인 유저이름 가져오기 -->
+	<select id="loginUserById" parameterType="String" resultType="UserDTO">
+	    select userName, userId from javabankUser where userId = #{userId}
+	</select>
+	<!-- 계좌번호 중복확인 --> 
+	<select id="checkAccount" parameterType="String" resultType="Integer">
 		select count(*) from javabankAccount where depositAccount = #{depositAccount}
 	</select>
+	<!-- 로그인 유저의 주거래계좌 존재유무 확인 -->
+	<select id="loginUserMainAccount" parameterType="java.util.Map" resultType="int">
+	    select count(*) from javabankAccount where mainAccount = #{mainAccount} and userId = #{userId}
+	</select>
+	<!-- 입출금계좌 생성 -->
+    <insert id="addAccount" parameterType="java.util.Map">
+    	insert into javabankAccount 
+    	(depositAccount, depositPw, userId, accountBalance, accountLimit, mainAccount) 
+    	values (#{depositAccount}, #{depositPw}, #{userId}, #{accountBalance}, #{accountLimit}, #{mainAccount})
+	</insert>
 </mapper>

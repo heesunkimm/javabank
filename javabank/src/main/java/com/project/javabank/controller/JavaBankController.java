@@ -2,6 +2,7 @@ package com.project.javabank.controller;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -13,10 +14,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.project.javabank.dto.AccountDTO;
+import com.project.javabank.dto.ProductDTO;
+import com.project.javabank.dto.UserDTO;
 import com.project.javabank.mapper.JavaBankMapper;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,73 +33,121 @@ public class JavaBankController {
 	
 	@GetMapping("/index")
 	public String index(@AuthenticationPrincipal User user,
-						@RequestParam(value="javabank", required=false) String javabank, Model model) {
-		// 로그인 정보 꺼내기
-		model.addAttribute("loginId", user.getUsername());
-		model.addAttribute("loginRoles", user.getAuthorities());
-		
-		if (javabank != null) {
-		    	model.addAttribute("msg", user.getUsername()+"님 환영합니다.");
-		} 
-		
-		
-		return "pages/index";
+	                    @RequestParam(value="javabank", required=false) String javabank, Model model) {
+	    // 로그인 정보 꺼내기
+	    model.addAttribute("loginId", user.getUsername());
+	    model.addAttribute("loginRoles", user.getAuthorities());
+
+	    if (javabank != null) {
+	        model.addAttribute("msg", user.getUsername()+"님 환영합니다.");
+	    }
+
+	    // 로그인 유저의 입출금 계계좌리스트
+	    List<AccountDTO> accountlist = mapper.loginUserAccount(user.getUsername());
+	    // 로그인 유저의 예적금 계좌리스트
+	    List<ProductDTO> pdtlist = mapper.loginUserProduct(user.getUsername());
+	    
+//	    System.out.println("가져온 계좌 수: " + pdtlist.size());
+
+	    model.addAttribute("accountList", accountlist);
+	    
+	    for (ProductDTO pdto : pdtlist) {
+	    	if(pdto.getCategory().equals("정기예금")) {
+	    	    model.addAttribute("depositList", pdtlist);
+	    	}else if (pdto.getCategory().equals("정기적금")) {
+	    		model.addAttribute("savingAccountList", pdtlist);
+	    	}
+	    }
+	    
+
+	    return "pages/index";
 	}
 	
-	
-	@RequestMapping("add_account")
-	public String addAccount(HttpServletRequest req, @ModelAttribute AccountDTO dto) {
-		
-		int depositPw = dto.getDepositPw();
-		String userId = dto.getUserId();
-	    int accountBalance = 0;
-	    double interestRate = 0.1;
-	    String accountLimit = dto.getAccountLimit();
-	    String mainAccount = "";
+	@GetMapping("/add_account")
+	public String addAccount(@AuthenticationPrincipal User user, Model model) {
+		String userId = user.getUsername();
+	    
+	    // 로그인 유저이름 가져오기
+	    UserDTO udto = mapper.loginUserById(userId);
+	    model.addAttribute("loginUser", udto.getUserName());
         
+		return "pages/add_account";
+	}
+	
+	@PostMapping("/add_account")
+	public String addAccount(@AuthenticationPrincipal User user, Model model, HttpServletRequest req, @ModelAttribute AccountDTO dto) {
+		String depositPw = dto.getDepositPw();
+		String userId = user.getUsername();
+	    int accountBalance = 0;
+	    int accountLimit = dto.getAccountLimit();
+	    String mainAccount = "N";
+	    
+	    Map<String, Object> checkParams = new HashMap<>();
+	    checkParams.put("userId", userId);
+	    checkParams.put("mainAccount", "Y");
+	    
+	    // 로그인 유저의 주거래 계좌 유무 확인
+	    int mainAccountExists = mapper.loginUserMainAccount(checkParams);
+	    
+	    // 주거래 계좌가 없으면 주거래 계좌로 설정
+	    if (mainAccountExists == 0) {
+	        mainAccount = "Y";
+	    }
+	    
+		// 중복되지 않는 계좌번호 생성
 		Random random = new Random();
 	    String accountNum = "0925";
-		
-	    // 계좌번호 생성
-	    Set<String> numCheck = new HashSet<>();
 	    
-	    // 4자리씩 3개의 그룹을 생성
-        while (numCheck.size() < 3) {
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < 4; i++) {
-                int num = random.nextInt(10);
-                sb.append(num);
-            }
-            numCheck.add(sb.toString());
-        }
-        
-        // Set을 리스트로 변환하여 계좌번호에 추가
-        for (String num : numCheck) {
-        	accountNum += "-" + num;
-        }
-        
-//        System.out.println("생성 계좌: " + accountNum);
+	    boolean isCheck = true;
+	    
+	    while (isCheck) {
+	        // 계좌번호 4자리씩 3개 그룹 생성
+	        Set<String> numCheck = new HashSet<>();
+	        
+	        // 4자리씩 3개의 그룹을 생성하여 Set에 저장
+	        while (numCheck.size() < 3) {
+	            StringBuilder sb = new StringBuilder();
+	            for (int i = 0; i < 4; i++) {
+	                int num = random.nextInt(10);
+	                sb.append(num);
+	            }
+	            numCheck.add(sb.toString());
+	        }
+
+	        // Set을 리스트로 변환하여 계좌번호에 추가
+	        for (String num : numCheck) {
+	            accountNum += "-" + num;
+	        }
+	        
+	        // 계좌 중복체크 
+	        int res = mapper.checkAccount(accountNum);
+	        
+	        // 중복계좌가 없는 경우
+	        if (res == 0) {
+	        	isCheck = false;
+	        }
+	    }
+		
         String depositAccount = accountNum;
+        System.out.println("생성 계좌: " + depositAccount);
 		
 		Map<String, Object> params = new HashMap<>();
-
 		params.put("depositAccount", depositAccount);
 		params.put("depositPw", depositPw);
 		params.put("userId", userId);
 		params.put("accountBalance", accountBalance);
-		params.put("interestRate", interestRate);
 		params.put("accountLimit", accountLimit);
 		params.put("mainAccount", mainAccount);
 		
-//		int res = mapper.checkAccount(depositAccount);
-//		
-//		// 계좌번호 존재시
-//		if(res > 0) {
-//			
-//		}else {
-//			
-//		}
+		// 입출금통장 개설
+		int res = mapper.addAccount(params);
+
+		if(res > 0) {
+	        req.setAttribute("msg", "입출금 통장이 개설되었습니다.");
+	    } else {
+	        req.setAttribute("msg", "입출금 통장 개설에 실패하였습니다.");
+	    }
 		
-		return "pages/add_account";
+		return "redirect:/index";
 	}
 }
