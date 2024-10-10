@@ -14,7 +14,7 @@
 <body>
     <header>
         <div class="logo_box">
-            <p>java<em>bank</em></p>
+	        <p><a href="index">java<em>bank</em></a></p>
         </div>
 
         <div class="icon_box">
@@ -26,7 +26,7 @@
                 <img src="../../images/icons/setting.png">
             </div>
             <ul class="setting_box" style="display: none;">
-                <li><a href="javascript:;">내계좌 모아보기</a></li>
+                <li><a href="my_account">내계좌 모아보기</a></li>
                 <li><a href="/logout">로그아웃</a></li>
             </ul>
         </div>

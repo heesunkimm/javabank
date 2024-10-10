@@ -1,13 +1,14 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <jsp:include page="index_top.jsp"/>
 	<!-- s: content -->
     <section id="main" class="content">
         <div class="account_box">
             <p class="account_tit">내 계좌</p>
             <ul>
-            	<c:if test="${empty accountList}">
+            	<c:if test="${empty mainAccount}">
                 <li class="nolist">
                     <a href="add_account">
                         <p>등록된 계좌가 없습니다. 계좌를 추가해주세요.</p>
@@ -17,19 +18,19 @@
                     </a>
                 </li>
             	</c:if>
-            	<c:forEach var="account" items="${accountList}">
-                <li class="account_item bg_yellow">
+            	<c:if test="${not empty mainAccount}">
+            	<li class="account_item bg_yellow">
                     <div class="txt_box">
-                        <p class="account_name">${account.category}</p>
-                        <p class="account_number">${account.depositAccount}</p>
-                        <p class="account_amount">${account.accountBalance}원</p>
+                        <p class="account_name">${mainAccount.category}</p>
+                        <p class="account_number">${mainAccount.depositAccount}</p>
+                        <p class="account_amount">${mainAccount.accountBalance}원</p>
                     </div>
                     <div class="btn_box">
-                        <button type="button">조회</button>
-                        <button type="button">이체</button>
+                        <button type="button" onclick="location.href='account_list?depositAccount=${mainAccount.depositAccount}'">조회</button>
+                        <button type="button" onclick="location.href='transfer?depositAccount=${mainAccount.depositAccount}'">이체</button>
                     </div>
             	</li>
-            	</c:forEach>
+            	</c:if>
             </ul>
         </div>
         
@@ -110,3 +111,13 @@
     </section>
     <!-- e: content -->
 <jsp:include page="index_bottom.jsp"/>
+<script>
+	$(document).ready(function() {
+		// msg가 존재하는 경우 alert
+		let msg = "${msg}";
+		console.log(msg);
+		if (msg && msg.trim() !== "") {
+		    alert(msg);
+		}
+	});
+</script>
