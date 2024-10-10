@@ -21,6 +21,10 @@ public class JavaBankMapper {
 	public List<AccountDTO> loginUserAccount(String userId) {
 		return sqlSession.selectList("loginUserAccount", userId);
 	}
+	// 로그인 유저의 주거래계좌 정보조회
+	public AccountDTO loginUserMainAccountInfo(String userId) {
+		return sqlSession.selectOne("loginUserMainAccountInfo", userId);
+	}
 	// 로그인 유저의 예적금 계좌리스트
 	public List<ProductDTO> loginUserProduct(String userId) {
 		return sqlSession.selectList("loginUserProduct", userId);
@@ -40,5 +44,9 @@ public class JavaBankMapper {
 	// 입출금계좌 생성
 	public int addAccount(Map<String, Object> params) {
 		return sqlSession.insert("addAccount", params);
+	}
+	// 입출금계좌 조회
+	public List<AccountDTO> accountDetails(Map<String, Object> params) {
+		return sqlSession.selectList("accountDetails", params);
 	}
 }

@@ -6,6 +6,10 @@
 	<select id="loginUserAccount" parameterType="String" resultType="AccountDTO">
 		select * from javabankAccount where userId = #{userId}
 	</select>
+	<!-- 로그인 유저의 주거래계좌 정보조회 -->
+	<select id="loginUserMainAccountInfo" parameterType="java.util.Map" resultType="AccountDTO">
+		select * from javabankAccount where mainAccount = 'Y' and userId = #{userId}
+	</select>
 	<!-- 로그인 유저의 예적금 계좌리스트 -->
 	<select id="loginUserProduct" parameterType="String" resultType="ProductDTO">
 		select * from javabankProduct where userId = #{userId}
@@ -28,4 +32,8 @@
     	(depositAccount, depositPw, userId, accountBalance, accountLimit, mainAccount) 
     	values (#{depositAccount}, #{depositPw}, #{userId}, #{accountBalance}, #{accountLimit}, #{mainAccount})
 	</insert>
+	<!-- 입출금계좌 조회 -->
+	<select id="accountDetails" parameterType="java.util.Map" resultType="AccountDTO">
+		select * from javabankAccount where userId = #{userId} and depositAccount = #{depositAccount}
+	</select>
 </mapper>

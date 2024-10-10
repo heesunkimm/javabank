@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.project.javabank.dto.AccountDTO;
 import com.project.javabank.dto.ProductDTO;
@@ -38,18 +39,16 @@ public class JavaBankController {
 	    model.addAttribute("loginId", user.getUsername());
 	    model.addAttribute("loginRoles", user.getAuthorities());
 
-	    if (javabank != null) {
-	        model.addAttribute("msg", user.getUsername()+"님 환영합니다.");
-	    }
+//	    if (javabank != null) {
+//	        model.addAttribute("msg", user.getUsername()+"님 환영합니다.");
+//	    }
 
-	    // 로그인 유저의 입출금 계계좌리스트
-	    List<AccountDTO> accountlist = mapper.loginUserAccount(user.getUsername());
+	    // 로그인 유저의 주거래 입출금계좌 조
+	    AccountDTO mainAccount = mapper.loginUserMainAccountInfo(user.getUsername());
 	    // 로그인 유저의 예적금 계좌리스트
 	    List<ProductDTO> pdtlist = mapper.loginUserProduct(user.getUsername());
-	    
-//	    System.out.println("가져온 계좌 수: " + pdtlist.size());
 
-	    model.addAttribute("accountList", accountlist);
+	    model.addAttribute("mainAccount", mainAccount);
 	    
 	    for (ProductDTO pdto : pdtlist) {
 	    	if(pdto.getCategory().equals("정기예금")) {
@@ -58,11 +57,10 @@ public class JavaBankController {
 	    		model.addAttribute("savingAccountList", pdtlist);
 	    	}
 	    }
-	    
-
 	    return "pages/index";
 	}
 	
+	// 입출금계좌 추가 페이지
 	@GetMapping("/add_account")
 	public String addAccount(@AuthenticationPrincipal User user, Model model) {
 		String userId = user.getUsername();
@@ -73,9 +71,8 @@ public class JavaBankController {
         
 		return "pages/add_account";
 	}
-	
 	@PostMapping("/add_account")
-	public String addAccount(@AuthenticationPrincipal User user, Model model, HttpServletRequest req, @ModelAttribute AccountDTO dto) {
+	public String addAccount(@AuthenticationPrincipal User user, Model model, RedirectAttributes redirectAttributes, @ModelAttribute AccountDTO dto) {
 		String depositPw = dto.getDepositPw();
 		String userId = user.getUsername();
 	    int accountBalance = 0;
@@ -129,7 +126,6 @@ public class JavaBankController {
 	    }
 		
         String depositAccount = accountNum;
-        System.out.println("생성 계좌: " + depositAccount);
 		
 		Map<String, Object> params = new HashMap<>();
 		params.put("depositAccount", depositAccount);
@@ -142,12 +138,52 @@ public class JavaBankController {
 		// 입출금통장 개설
 		int res = mapper.addAccount(params);
 
-		if(res > 0) {
-	        req.setAttribute("msg", "입출금 통장이 개설되었습니다.");
+		if (res > 0) {
+	        redirectAttributes.addFlashAttribute("msg", "입출금 통장이 개설되었습니다.");
 	    } else {
-	        req.setAttribute("msg", "입출금 통장 개설에 실패하였습니다.");
+	        redirectAttributes.addFlashAttribute("msg", "입출금 통장 개설에 실패하였습니다.");
 	    }
 		
 		return "redirect:/index";
+	}
+	
+	// 입출금계좌 조회 페이지
+	@GetMapping("account_list")
+	public String accountList(@AuthenticationPrincipal User user, Model model) {
+		String userId = user.getUsername();
+	    
+	    // 로그인 유저의 입출금 계좌리스트
+	    List<AccountDTO> accountList = mapper.loginUserAccount(user.getUsername());
+	    
+	    model.addAttribute("accountList", accountList);
+	    
+	    
+		return "pages/account_list";
+	}
+	
+	@GetMapping("transfer")
+	public String transfer(@AuthenticationPrincipal User user, Model model) {
+		return "pages/transfer";
+	}
+	
+	// 
+	@GetMapping("my_account")
+	public String myAccount(@AuthenticationPrincipal User user, Model model) {
+		
+		// 로그인 유저의 입출금 계좌리스트
+	    List<AccountDTO> accountlist = mapper.loginUserAccount(user.getUsername());
+	    // 로그인 유저의 예적금 계좌리스트
+	    List<ProductDTO> pdtlist = mapper.loginUserProduct(user.getUsername());
+
+	    model.addAttribute("accountList", accountlist);
+	    
+	    for (ProductDTO pdto : pdtlist) {
+	    	if(pdto.getCategory().equals("정기예금")) {
+	    	    model.addAttribute("depositList", pdtlist);
+	    	}else if (pdto.getCategory().equals("정기적금")) {
+	    		model.addAttribute("savingAccountList", pdtlist);
+	    	}
+	    }
+		return "pages/my_account";
 	}
 }
