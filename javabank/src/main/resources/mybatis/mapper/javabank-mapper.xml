@@ -4,36 +4,71 @@
 <mapper namespace="mybatis.javabank.javabank-mapper">
 	<!-- 로그인 유저의 입출금 계좌리스트 -->
 	<select id="loginUserAccount" parameterType="String" resultType="AccountDTO">
-		select * from javabankAccount where userId = #{userId}
+		SELECT a.depositAccount, a.category, t.balance
+        FROM JB_DEPOSIT a 
+        INNER JOIN JB_Dtransaction t ON a.depositAccount = t.depositAccount 
+        WHERE a.userId = #{userId}
 	</select>
 	<!-- 로그인 유저의 주거래계좌 정보조회 -->
 	<select id="loginUserMainAccountInfo" parameterType="java.util.Map" resultType="AccountDTO">
-		select * from javabankAccount where mainAccount = 'Y' and userId = #{userId}
+	    SELECT depositAccount, category, balance
+	    FROM (
+	        SELECT a.depositAccount, a.category, t.balance,
+	               ROW_NUMBER() OVER (PARTITION BY a.depositAccount ORDER BY t.updateDate DESC) AS rn
+	        FROM JB_DEPOSIT a 
+	        INNER JOIN JB_Dtransaction t ON a.depositAccount = t.depositAccount 
+	        WHERE a.mainAccount = 'Y' AND a.userId = #{userId}
+	    ) sub
+	    WHERE rn = 1
+	</select>
+	<!-- 로그인 유저의 계좌 정보조회 -->
+	<select id="loginUserAccountInfo" parameterType="java.util.Map" resultType="AccountDTO">
+	    SELECT * 
+		FROM (
+		    SELECT a.depositAccount, a.category, t.balance, ROW_NUMBER() OVER (ORDER BY t.updateDate DESC) AS rn
+		    FROM JB_DEPOSIT a 
+		    INNER JOIN JB_Dtransaction t ON a.depositAccount = t.depositAccount 
+		    WHERE a.depositAccount = #{depositAccount} AND a.userId = #{userId}
+		) sub
+		WHERE rn = 1
 	</select>
 	<!-- 로그인 유저의 예적금 계좌리스트 -->
 	<select id="loginUserProduct" parameterType="String" resultType="ProductDTO">
-		select * from javabankProduct where userId = #{userId}
+		SELECT productAccount, category, balance
+	    FROM (
+	        SELECT a.productAccount, a.category, t.balance,
+	               ROW_NUMBER() OVER (PARTITION BY a.productAccount ORDER BY t.updateDate DESC) AS rn
+	        FROM JB_PRODUCT a 
+	        INNER JOIN JB_Ptransaction t ON a.productAccount = t.productAccount 
+	        WHERE a.userId = #{userId}
+	    ) sub
+	    WHERE rn = 1
 	</select>
 	<!-- 로그인 유저이름 가져오기 -->
 	<select id="loginUserById" parameterType="String" resultType="UserDTO">
-	    select userName, userId from javabankUser where userId = #{userId}
+	    select userName, userId from JB_USER where userId = #{userId}
 	</select>
 	<!-- 계좌번호 중복확인 --> 
 	<select id="checkAccount" parameterType="String" resultType="Integer">
-		select count(*) from javabankAccount where depositAccount = #{depositAccount}
+		select count(*) from JB_DEPOSIT where depositAccount = #{depositAccount}
 	</select>
 	<!-- 로그인 유저의 주거래계좌 존재유무 확인 -->
 	<select id="loginUserMainAccount" parameterType="java.util.Map" resultType="int">
-	    select count(*) from javabankAccount where mainAccount = #{mainAccount} and userId = #{userId}
+	    select count(*) from JB_DEPOSIT where mainAccount = #{mainAccount} and userId = #{userId}
 	</select>
 	<!-- 입출금계좌 생성 -->
     <insert id="addAccount" parameterType="java.util.Map">
-    	insert into javabankAccount 
-    	(depositAccount, depositPw, userId, accountBalance, accountLimit, mainAccount) 
-    	values (#{depositAccount}, #{depositPw}, #{userId}, #{accountBalance}, #{accountLimit}, #{mainAccount})
+    	insert into JB_DEPOSIT 
+    	(depositAccount, depositPw, userId, transactionLimit, mainAccount) 
+    	values (#{depositAccount}, #{depositPw}, #{userId}, #{transactionLimit}, #{mainAccount})
 	</insert>
-	<!-- 입출금계좌 조회 -->
-	<select id="accountDetails" parameterType="java.util.Map" resultType="AccountDTO">
-		select * from javabankAccount where userId = #{userId} and depositAccount = #{depositAccount}
+	<!-- 입출금계좌 거래내역 조회 -->
+	<select id="accountList" parameterType="java.util.Map" resultType="AccountDTO">
+		select a.*, t.updateDate, t.type, t.memo, t.deltaAmount, t.balance
+		from JB_DEPOSIT a
+		inner join JB_Dtransaction t 
+		on a.depositAccount = t.depositAccount
+		where a.depositAccount = #{depositAccount} and a.userId = #{userId}
+		order by t.updateDate desc
 	</select>
 </mapper>
