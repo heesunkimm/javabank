@@ -27,7 +27,7 @@
                 <p>금융거래 1일 이체한도</p>
                 <div>
                     <label>
-                        <input type="text" name="accountLimit" placeholder="최대 100만원까지 설정가능합니다." value="" required>
+                        <input type="text" name="transactionLimit" placeholder="최대 100만원까지 설정가능합니다." value="" required>
                     </label>
                 </div>
             </div>
@@ -67,7 +67,7 @@
 	    
 	    // 유효성 체크
 	    $('.addBtn').on("click", function() {
-	        let intAccountLimit = $("input[name='accountLimit']").val();
+	        let intAccountLimit = $("input[name='transactionLimit']").val();
 	        let accountLimit = parseInt(intAccountLimit.replace(/,/g, '')); // 쉼표 제거
 	        
 	        

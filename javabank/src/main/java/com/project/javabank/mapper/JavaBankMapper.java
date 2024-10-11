@@ -25,6 +25,10 @@ public class JavaBankMapper {
 	public AccountDTO loginUserMainAccountInfo(String userId) {
 		return sqlSession.selectOne("loginUserMainAccountInfo", userId);
 	}
+	// 로그인 유저의 계좌 정보조회
+	public AccountDTO loginUserAccountInfo(Map<String, Object> params) {
+		return sqlSession.selectOne("loginUserAccountInfo", params);
+	}
 	// 로그인 유저의 예적금 계좌리스트
 	public List<ProductDTO> loginUserProduct(String userId) {
 		return sqlSession.selectList("loginUserProduct", userId);
@@ -38,7 +42,7 @@ public class JavaBankMapper {
 		return sqlSession.selectOne("checkAccount", depositAccount);
 	}
 	// 로그인 유저의 주거래계좌 존재유무 확인
-	public int loginUserMainAccount(Map<String, Object> params) {
+	public int loginUserMainAccountCheck(Map<String, Object> params) {
 	    return sqlSession.selectOne("loginUserMainAccount", params);
 	}
 	// 입출금계좌 생성
@@ -46,7 +50,7 @@ public class JavaBankMapper {
 		return sqlSession.insert("addAccount", params);
 	}
 	// 입출금계좌 조회
-	public List<AccountDTO> accountDetails(Map<String, Object> params) {
+	public List<AccountDTO> accountList(Map<String, Object> params) {
 		return sqlSession.selectList("accountDetails", params);
 	}
 }

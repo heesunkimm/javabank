@@ -1,19 +1,22 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <jsp:include page="index_top.jsp"/>
 <!-- s: content -->
     <section id="account_list" class="content">
     	
         <div class="info_box bg_yellow">
-            <div class="txt_box">
-                <p class="account_name"></p>
-                <p class="account_number">0000-0000-0000-0000</p>
-                <p class="account_amount">0원</p>
-            </div>
-            <div class="btn_box">
-                <button type="button">이체</button>
-            </div>
+	            <div class="txt_box">
+	                <p class="account_name">${accountInfo.category}</p>
+	                <p class="account_number">${accountInfo.depositAccount}</p>
+	                <p class="account_amount">
+                      	<fmt:formatNumber value="${accountInfo.balance}" pattern="#,###"/>원
+                    </p>
+	            </div>
+	            <div class="btn_box">
+	                <button type="button">이체</button>
+	            </div>
         </div>
 
         <div class="account_details">
@@ -33,7 +36,7 @@
             	<c:forEach var="account" items="${accountList}">
                 <li class="account_items">
                     <div class="txt_box">
-                        <p class="account_date font_gray">2024.10.10 00:00:00</p>
+                        <p class="account_date font_gray"></p>
                         <p class="account_name">홍길동</p>
                         <p class="account_meno font_darkgray">입출금 메모</p>
                         <p></p>

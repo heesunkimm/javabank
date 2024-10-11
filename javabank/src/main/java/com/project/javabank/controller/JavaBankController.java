@@ -39,17 +39,11 @@ public class JavaBankController {
 	    model.addAttribute("loginId", user.getUsername());
 	    model.addAttribute("loginRoles", user.getAuthorities());
 
-//	    if (javabank != null) {
-//	        model.addAttribute("msg", user.getUsername()+"님 환영합니다.");
-//	    }
-
-	    // 로그인 유저의 주거래 입출금계좌 조
+	    // 로그인 유저의 주거래 입출금계좌 조회
 	    AccountDTO mainAccount = mapper.loginUserMainAccountInfo(user.getUsername());
+	    model.addAttribute("mainAccount", mainAccount);
 	    // 로그인 유저의 예적금 계좌리스트
 	    List<ProductDTO> pdtlist = mapper.loginUserProduct(user.getUsername());
-
-	    model.addAttribute("mainAccount", mainAccount);
-	    
 	    for (ProductDTO pdto : pdtlist) {
 	    	if(pdto.getCategory().equals("정기예금")) {
 	    	    model.addAttribute("depositList", pdtlist);
@@ -75,8 +69,7 @@ public class JavaBankController {
 	public String addAccount(@AuthenticationPrincipal User user, Model model, RedirectAttributes redirectAttributes, @ModelAttribute AccountDTO dto) {
 		String depositPw = dto.getDepositPw();
 		String userId = user.getUsername();
-	    int accountBalance = 0;
-	    int accountLimit = dto.getAccountLimit();
+		int transactionLimit = dto.getTransactionLimit();
 	    String mainAccount = "N";
 	    
 	    Map<String, Object> checkParams = new HashMap<>();
@@ -84,7 +77,7 @@ public class JavaBankController {
 	    checkParams.put("mainAccount", "Y");
 	    
 	    // 로그인 유저의 주거래 계좌 유무 확인
-	    int mainAccountExists = mapper.loginUserMainAccount(checkParams);
+	    int mainAccountExists = mapper.loginUserMainAccountCheck(checkParams);
 	    
 	    // 주거래 계좌가 없으면 주거래 계좌로 설정
 	    if (mainAccountExists == 0) {
@@ -131,8 +124,7 @@ public class JavaBankController {
 		params.put("depositAccount", depositAccount);
 		params.put("depositPw", depositPw);
 		params.put("userId", userId);
-		params.put("accountBalance", accountBalance);
-		params.put("accountLimit", accountLimit);
+		params.put("transactionLimit", transactionLimit);
 		params.put("mainAccount", mainAccount);
 		
 		// 입출금통장 개설
@@ -149,13 +141,21 @@ public class JavaBankController {
 	
 	// 입출금계좌 조회 페이지
 	@GetMapping("account_list")
-	public String accountList(@AuthenticationPrincipal User user, Model model) {
+	public String accountList(@AuthenticationPrincipal User user, @RequestParam String depositAccount , Model model) {
 		String userId = user.getUsername();
-	    
+		
+		Map<String, Object> params = new HashMap<>();
+		params.put("userId",userId);
+		params.put("depositAccount", depositAccount);
+		
+		// 선택한 계좌의 상세 정보
+		AccountDTO accountInfo = mapper.loginUserAccountInfo(params);
+		model.addAttribute("accountInfo", accountInfo);
+		
 	    // 로그인 유저의 입출금 계좌리스트
-	    List<AccountDTO> accountList = mapper.loginUserAccount(user.getUsername());
-	    
+	    List<AccountDTO> accountList = mapper.accountList(params);
 	    model.addAttribute("accountList", accountList);
+	    
 	    
 	    
 		return "pages/account_list";
