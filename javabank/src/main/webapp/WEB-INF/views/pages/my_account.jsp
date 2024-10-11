@@ -4,7 +4,7 @@
 <jsp:include page="index_top.jsp"/>
 	<!-- s: content -->
     <section id="my_account" class="content">
-        <p>내 계좌</p>
+        <p>내 계좌 모아보기</p>
         <div class="account_box">
             <p class="account_tit">입출금</p>
             <ul>
@@ -23,9 +23,11 @@
                         <img src="../../images/icons/star_line.png">
                     </div>
                     <div class="txt_box">
-                        <p class="account_name">계좌명(입출금/예금/적금)</p>
-                        <p class="account_number">0000-0000-0000-0000</p>
-                        <p class="account_amount">0원</p>
+                        <p class="account_name">${account.category}</p>
+                        <p class="account_number">${account.depositAccount}</p>
+                        <p class="account_amount">
+                        	<fmt:formatNumber value="${account.balance}" pattern="#,###"/>원
+                       	</p>
                     </div>
                     <div class="btn_box">
                         <button type="button">조회</button>
@@ -46,7 +48,9 @@
 	                <div class="txt_box">
 	                    <p class="account_name">${deposit.category}</p>
 	                    <p class="account_number">${deposit.productAccount}</p>
-	                    <p class="account_amount">${deposit.accountBalance}원</p>
+	                    <p class="account_amount">
+	                    	<fmt:formatNumber value="${deposit.balance}" pattern="#,###"/>원
+                    	</p>
 	                </div>
 	                <div class="btn_box">
 	                    <button type="button">조회</button>
@@ -68,7 +72,9 @@
                     <div class="txt_box">
                         <p class="account_name">${savingAccount.category}</p>
                         <p class="account_number">${savingAccount.productAccount}</p>
-                        <p class="account_amount">${savingAccount.accountBalance}원</p>
+                        <p class="account_amount">
+                        	<fmt:formatNumber value="${savingAccount.balance}" pattern="#,###"/>원
+                        </p>
                     </div>
                     <div class="btn_box">
                         <button type="button">조회</button>

@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <jsp:include page="index_top.jsp"/>
 	<!-- s: content -->
@@ -23,7 +24,9 @@
                     <div class="txt_box">
                         <p class="account_name">${mainAccount.category}</p>
                         <p class="account_number">${mainAccount.depositAccount}</p>
-                        <p class="account_amount">${mainAccount.accountBalance}원</p>
+                        <p class="account_amount">
+                        	<fmt:formatNumber value="${mainAccount.balance}" pattern="#,###"/>원
+                       	</p>
                     </div>
                     <div class="btn_box">
                         <button type="button" onclick="location.href='account_list?depositAccount=${mainAccount.depositAccount}'">조회</button>
@@ -43,7 +46,9 @@
 	                <div class="txt_box">
 	                    <p class="account_name">${deposit.category}</p>
 	                    <p class="account_number">${deposit.productAccount}</p>
-	                    <p class="account_amount">${deposit.accountBalance}원</p>
+	                    <p class="account_amount">
+                        	<fmt:formatNumber value="${deposit.balance}" pattern="#,###"/>원
+                       	</p>
 	                </div>
 	                <div class="btn_box">
 	                    <button type="button">조회</button>
@@ -64,7 +69,9 @@
                     <div class="txt_box">
                         <p class="account_name">${savingAccount.category}</p>
                         <p class="account_number">${savingAccount.productAccount}</p>
-                        <p class="account_amount">${savingAccount.accountBalance}원</p>
+                        <p class="account_amount">
+                        	<fmt:formatNumber value="${savingAccount.balance}" pattern="#,###"/>원
+                       	</p>
                     </div>
                     <div class="btn_box">
                         <button type="button">조회</button>
