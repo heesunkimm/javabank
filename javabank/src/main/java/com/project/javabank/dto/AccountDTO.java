@@ -5,17 +5,16 @@ public class AccountDTO {
 	private String depositPw;
 	private String userId;
 	private String category;
-	private String updateDate;
-	private String accountType;
-	private String accountMemo;
-	private int deltaAmount;
-	private int accountBalance;
-	private String accountRegDate;
-	private String expiryDate;
-	private int interestRate;
-	private int interestAmount;
-	private int accountLimit;
+	private String regDate;
+	private String interestRate;
+	private int transactionLimit;
 	private String mainAccount;
+	// 조인되는 테이블 컬럼 추가
+	private String updateDate;
+	private String type;
+	private String memo;
+	private int deltaAmount;
+	private int balance;
 	
 	public String getDepositAccount() {
 		return depositAccount;
@@ -41,23 +40,47 @@ public class AccountDTO {
 	public void setCategory(String category) {
 		this.category = category;
 	}
+	public String getRegDate() {
+		return regDate;
+	}
+	public void setRegDate(String regDate) {
+		this.regDate = regDate;
+	}
+	public String getInterestRate() {
+		return interestRate;
+	}
+	public void setInterestRate(String interestRate) {
+		this.interestRate = interestRate;
+	}
+	public int getTransactionLimit() {
+		return transactionLimit;
+	}
+	public void setTransactionLimit(int transactionLimit) {
+		this.transactionLimit = transactionLimit;
+	}
+	public String getMainAccount() {
+		return mainAccount;
+	}
+	public void setMainAccount(String mainAccount) {
+		this.mainAccount = mainAccount;
+	}
 	public String getUpdateDate() {
 		return updateDate;
 	}
 	public void setUpdateDate(String updateDate) {
 		this.updateDate = updateDate;
 	}
-	public String getAccountType() {
-		return accountType;
+	public String getType() {
+		return type;
 	}
-	public void setAccountType(String accountType) {
-		this.accountType = accountType;
+	public void setType(String type) {
+		this.type = type;
 	}
-	public String getAccountMemo() {
-		return accountMemo;
+	public String getMemo() {
+		return memo;
 	}
-	public void setAccountMemo(String accountMemo) {
-		this.accountMemo = accountMemo;
+	public void setMemo(String memo) {
+		this.memo = memo;
 	}
 	public int getDeltaAmount() {
 		return deltaAmount;
@@ -65,46 +88,10 @@ public class AccountDTO {
 	public void setDeltaAmount(int deltaAmount) {
 		this.deltaAmount = deltaAmount;
 	}
-	public int getAccountBalance() {
-		return accountBalance;
+	public int getBalance() {
+		return balance;
 	}
-	public void setAccountBalance(int accountBalance) {
-		this.accountBalance = accountBalance;
-	}
-	public String getAccountRegDate() {
-		return accountRegDate;
-	}
-	public void setAccountRegDate(String accountRegDate) {
-		this.accountRegDate = accountRegDate;
-	}
-	public String getExpiryDate() {
-		return expiryDate;
-	}
-	public void setExpiryDate(String expiryDate) {
-		this.expiryDate = expiryDate;
-	}
-	public int getInterestRate() {
-		return interestRate;
-	}
-	public void setInterestRate(int interestRate) {
-		this.interestRate = interestRate;
-	}
-	public int getInterestAmount() {
-		return interestAmount;
-	}
-	public void setInterestAmount(int interestAmount) {
-		this.interestAmount = interestAmount;
-	}
-	public int getAccountLimit() {
-		return accountLimit;
-	}
-	public void setAccountLimit(int accountLimit) {
-		this.accountLimit = accountLimit;
-	}
-	public String getMainAccount() {
-		return mainAccount;
-	}
-	public void setMainAccount(String mainAccount) {
-		this.mainAccount = mainAccount;
+	public void setBalance(int balance) {
+		this.balance = balance;
 	}
 }
