@@ -4,29 +4,23 @@
 <mapper namespace="mybatis.javabank.user-mapper">
 	<!-- DB에 ID가 있는지 확인 -->
 	<select id="findUsernameById" parameterType="String" resultType="UserDTO">
-		select * from javabankUser where userId = #{userId}
+		select * from JB_USER where userId = #{userId}
 	</select>
-	
 	<!-- 이메일로 등록된 이메일, 비밀번호, 아이디 찾기  -->
     <select id="findUserByEmail" parameterType="String" resultType="UserDTO">
-		select userEmail, userPw, userId from javabankUser where userEmail = #{userEmail}
+		select userEmail, userPw, userId from JB_USER where userEmail = #{userEmail}
 	</select>
-    
     <!-- 이메일 중복체크 -->
 	<select id="checkEmail" parameterType="String" resultType="int">
-		select count(*) from javabankUser where userEmail = #{userEmail}
+		select count(*) from JB_USER where userEmail = #{userEmail}
 	</select>
-    
     <!-- 아이디 중복체크 -->
    	<select id="idCheck" parameterType="String" resultType="int">
-    	select count(*) from javabankUser where userId = #{userId}
+    	select count(*) from JB_USER where userId = #{userId}
     </select>
-
     <!-- 회원가입 -->
     <insert id="joinUser" parameterType="java.util.Map">
-    	insert into javabankUser (userId, userPw, userName, userBirth, userEmail, userTel, userRoles, userRegDate)
+    	insert into JB_USER (userId, userPw, userName, userBirth, userEmail, userTel, userRoles, userRegDate)
     	values (#{userId}, #{userPw}, #{userName}, #{userBirth}, #{userEmail}, #{userTel}, 'USER', SYSDATE)
     </insert>
-	
-    
 </mapper>
