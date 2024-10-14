@@ -4,24 +4,27 @@
 <mapper namespace="mybatis.javabank.javabank-mapper">
 	<!-- 로그인 유저의 입출금 계좌리스트 -->
 	<select id="loginUserAccount" parameterType="String" resultType="AccountDTO">
-		SELECT a.depositAccount, a.category, t.balance
-        FROM JB_DEPOSIT a 
-        INNER JOIN JB_Dtransaction t ON a.depositAccount = t.depositAccount 
-        WHERE a.userId = #{userId}
+		SELECT depositAccount, category, balance
+	    FROM (
+	        SELECT a.depositAccount, a.category, t.balance, ROW_NUMBER() OVER (PARTITION BY a.depositAccount ORDER BY t.updateDate DESC) AS rn
+	        FROM JB_DEPOSIT a 
+	        INNER JOIN JB_Dtransaction t ON a.depositAccount = t.depositAccount 
+	        WHERE a.userId = #{userId}
+	    ) sub
+	    WHERE rn = 1
 	</select>
 	<!-- 로그인 유저의 주거래계좌 정보조회 -->
 	<select id="loginUserMainAccountInfo" parameterType="java.util.Map" resultType="AccountDTO">
 	    SELECT depositAccount, category, balance
 	    FROM (
-	        SELECT a.depositAccount, a.category, t.balance,
-	               ROW_NUMBER() OVER (PARTITION BY a.depositAccount ORDER BY t.updateDate DESC) AS rn
+	        SELECT a.depositAccount, a.category, t.balance, ROW_NUMBER() OVER (PARTITION BY a.depositAccount ORDER BY t.updateDate DESC) AS rn
 	        FROM JB_DEPOSIT a 
 	        INNER JOIN JB_Dtransaction t ON a.depositAccount = t.depositAccount 
 	        WHERE a.mainAccount = 'Y' AND a.userId = #{userId}
 	    ) sub
 	    WHERE rn = 1
 	</select>
-	<!-- 로그인 유저의 계좌 정보조회 -->
+	<!-- 로그인 유저의 계좌 상세정보조회 -->
 	<select id="loginUserAccountInfo" parameterType="java.util.Map" resultType="AccountDTO">
 	    SELECT * 
 		FROM (
@@ -36,8 +39,7 @@
 	<select id="loginUserProduct" parameterType="String" resultType="ProductDTO">
 		SELECT productAccount, category, balance
 	    FROM (
-	        SELECT a.productAccount, a.category, t.balance,
-	               ROW_NUMBER() OVER (PARTITION BY a.productAccount ORDER BY t.updateDate DESC) AS rn
+	        SELECT a.productAccount, a.category, t.balance, ROW_NUMBER() OVER (PARTITION BY a.productAccount ORDER BY t.updateDate DESC) AS rn
 	        FROM JB_PRODUCT a 
 	        INNER JOIN JB_Ptransaction t ON a.productAccount = t.productAccount 
 	        WHERE a.userId = #{userId}
@@ -62,13 +64,34 @@
     	(depositAccount, depositPw, userId, transactionLimit, mainAccount) 
     	values (#{depositAccount}, #{depositPw}, #{userId}, #{transactionLimit}, #{mainAccount})
 	</insert>
+	<!-- 입출금 거래내역 0원으로 생성 -->
+	<insert id="addAccountDetails" parameterType="java.util.Map">
+		insert into JB_Dtransaction 
+		(accountSeq, depositAccount, userId, type, deltaAmount, balance, transferAccount, transferName)
+		values (accountSeq.nextval, #{depositAccount}, #{userId}, '개설', 0, 0, #{depositAccount}, #{userName})
+	</insert>
 	<!-- 입출금계좌 거래내역 조회 -->
 	<select id="accountList" parameterType="java.util.Map" resultType="AccountDTO">
-		select a.*, t.updateDate, t.type, t.memo, t.deltaAmount, t.balance
+		select a.*, t.updateDate, t.type, t.memo, t.deltaAmount, t.balance, t.transferAccount, t.transferName, u.userName
 		from JB_DEPOSIT a
-		inner join JB_Dtransaction t 
-		on a.depositAccount = t.depositAccount
+		inner join JB_USER u on a.userId = u.userId
+		inner join JB_Dtransaction t on a.depositAccount = t.depositAccount
 		where a.depositAccount = #{depositAccount} and a.userId = #{userId}
 		order by t.updateDate desc
+	</select>
+	<!-- 로그인 유저의 최근 입출금거래 계좌리스트 -->
+	<!-- <select id="recentlyAccountList" parameterType="String" resultType="DtransactionDTO">
+		SELECT *
+		FROM (
+		    SELECT *, ROW_NUMBER() OVER (PARTITION BY transferAccount ORDER BY updateDate DESC) AS rn
+		    FROM JB_Dtransaction
+		) t
+		WHERE t.rn = 1 and depositAccount = #{depositAccount}
+		ORDER BY t.updateDate DESC
+		AND ROWNUM <= 7
+	</select> -->
+	<!-- db에 존재하는 계좌 체크 -->
+	<select id="accountCheck" parameterType="String" resultType="AccountDTO">
+		select * from JB_DEPOSIT where depositAccount = #{transferAccount}
 	</select>
 </mapper>

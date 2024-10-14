@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.project.javabank.dto.AccountDTO;
@@ -72,6 +73,10 @@ public class JavaBankController {
 		int transactionLimit = dto.getTransactionLimit();
 	    String mainAccount = "N";
 	    
+	    // 로그인 유저이름 가져오기
+	    UserDTO udto = mapper.loginUserById(userId);
+	    String userName = udto.getUserName();
+	    
 	    Map<String, Object> checkParams = new HashMap<>();
 	    checkParams.put("userId", userId);
 	    checkParams.put("mainAccount", "Y");
@@ -126,13 +131,13 @@ public class JavaBankController {
 		params.put("userId", userId);
 		params.put("transactionLimit", transactionLimit);
 		params.put("mainAccount", mainAccount);
+		params.put("userName", userName);
 		
 		// 입출금통장 개설
-		int res = mapper.addAccount(params);
-
-		if (res > 0) {
+		try {
+			mapper.addAccount(params);
 	        redirectAttributes.addFlashAttribute("msg", "입출금 통장이 개설되었습니다.");
-	    } else {
+	    } catch(Exception e) {
 	        redirectAttributes.addFlashAttribute("msg", "입출금 통장 개설에 실패하였습니다.");
 	    }
 		
@@ -156,20 +161,37 @@ public class JavaBankController {
 	    List<AccountDTO> accountList = mapper.accountList(params);
 	    model.addAttribute("accountList", accountList);
 	    
-	    
-	    
 		return "pages/account_list";
 	}
 	
+	// 송금
 	@GetMapping("transfer")
 	public String transfer(@AuthenticationPrincipal User user, Model model) {
+		// 로그인 유저의 입출금 계좌리스트
+	    List<AccountDTO> accountlist = mapper.loginUserAccount(user.getUsername());
+	    model.addAttribute("accountlist", accountlist);
+	    
+	    // 로그인 유저의 최근 입출금거래 계좌리스트
+	    
 		return "pages/transfer";
 	}
+	// db에 존재하는 계좌인지 확인
+	@ResponseBody
+	@PostMapping("accountCheck.ajax")
+	public String accountCheck(@AuthenticationPrincipal User user, @RequestParam String transferAccount) {
+	    AccountDTO accountCheck = mapper.accountCheck(transferAccount);
+		
+		// 계좌가 있는 경우
+	    if (accountCheck != null && accountCheck.getDepositAccount() != null) {
+	        return "OK";
+	    } else {
+	        return "FALSE";
+	    }
+	}
 	
-	// 
+	// 내계좌 모아보기
 	@GetMapping("my_account")
 	public String myAccount(@AuthenticationPrincipal User user, Model model) {
-		
 		// 로그인 유저의 입출금 계좌리스트
 	    List<AccountDTO> accountlist = mapper.loginUserAccount(user.getUsername());
 	    // 로그인 유저의 예적금 계좌리스트

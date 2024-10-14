@@ -6,8 +6,10 @@ import java.util.Map;
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.project.javabank.dto.AccountDTO;
+import com.project.javabank.dto.DtransactionDTO;
 import com.project.javabank.dto.ProductDTO;
 import com.project.javabank.dto.UserDTO;
 
@@ -45,12 +47,24 @@ public class JavaBankMapper {
 	public int loginUserMainAccountCheck(Map<String, Object> params) {
 	    return sqlSession.selectOne("loginUserMainAccount", params);
 	}
-	// 입출금계좌 생성
-	public int addAccount(Map<String, Object> params) {
-		return sqlSession.insert("addAccount", params);
+	// 입출금계좌 생성 및 최초 거래내역 0원으로 생성
+	@Transactional
+	public void addAccount(Map<String, Object> params) {
+		// 계좌추가
+		sqlSession.insert("addAccount", params);
+		// 첫거 내역 추가
+		sqlSession.insert("addAccountDetails", params);
 	}
 	// 입출금계좌 조회
 	public List<AccountDTO> accountList(Map<String, Object> params) {
-		return sqlSession.selectList("accountDetails", params);
+		return sqlSession.selectList("accountList", params);
+	}
+	// 로그인 유저의 최근 입출금거래 계좌리스트
+//	public List<DtransactionDTO> recentlyAccountList(String depositAccount) {
+//		return sqlSession.selectList("recentlyAccountList", depositAccount);
+//	}
+	// db에 존재하는 계좌 체크
+	public AccountDTO accountCheck(String transferAccount) {
+	    return sqlSession.selectOne("accountCheck", transferAccount);
 	}
 }
