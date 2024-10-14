@@ -15,7 +15,7 @@
                     </p>
 	            </div>
 	            <div class="btn_box">
-	                <button type="button">이체</button>
+	                <button type="button" onclick="location.href='transfer?depositAccount=${accountInfo.depositAccount}'">이체</button>
 	            </div>
         </div>
 
@@ -36,15 +36,19 @@
             	<c:forEach var="account" items="${accountList}">
                 <li class="account_items">
                     <div class="txt_box">
-                        <p class="account_date font_gray"></p>
-                        <p class="account_name">홍길동</p>
-                        <p class="account_meno font_darkgray">입출금 메모</p>
+                        <p class="account_date font_gray">${account.updateDate}</p>
+                        <p class="account_name">${account.userName}</p>
+                        <p class="account_meno font_darkgray">${account.memo}</p>
                         <p></p>
                     </div>
                     <div class="account_info">
-                        <p class="account_type font_blue">입금</p>
-                        <p class="delta_amount font_blue">100,000원</p>
-                        <p class="account_balance font_darkgray">100,000원</p>
+                        <p class="account_type font_blue">${account.type}</p>
+                        <p class="delta_amount font_blue">
+                        	<fmt:formatNumber value="${account.deltaAmount}" pattern="#,###"/>원
+                        </p>
+                        <p class="account_balance font_darkgray">
+                        	<fmt:formatNumber value="${account.balance}" pattern="#,###"/>원
+                        </p>
                     </div>
                 </li>
     			</c:forEach>

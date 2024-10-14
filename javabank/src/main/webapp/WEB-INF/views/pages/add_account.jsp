@@ -44,12 +44,8 @@
 		// 숫자 정규표현식 변환
 	    $("input[name='password']").keyup(function() {
 	        let value = $(this).val().replace(/[^0-9]/g, '');
-	    });
-		// 숫자 정규표현식 변환, 3자리마다 쉼표추가
-	    $("input[type='password']").keyup(function() {
-			let value = $(this).val().replace(/[^0-9]/g, '');
 	        $(this).val(value);
-		});
+	    });
 		
 	 	// 비밀번호 일치여부 확인
 		$("input[name='depositPw'], input[name='depositPw02']").on("keyup", function() {

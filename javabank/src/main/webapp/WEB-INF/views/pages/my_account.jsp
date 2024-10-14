@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <jsp:include page="index_top.jsp"/>
 	<!-- s: content -->
     <section id="my_account" class="content">
@@ -30,7 +31,7 @@
                        	</p>
                     </div>
                     <div class="btn_box">
-                        <button type="button">조회</button>
+                        <button type="button" onclick="location.href='account_list?depositAccount=${account.depositAccount}'">조회</button>
                         <button type="button">이체</button>
                         <button type="button">계좌삭제</button>
                     </div>

@@ -135,11 +135,11 @@ footer p {margin-top: 16px; font-size: 14px; text-align: center; color: #666;}
 #account_list .account_details .account_list .account_items .account_info .delta_amount {font-size: 20px; font-weight: 700;}
 
 /* transfer */
-#transfer .bank_info {display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 16px 6px; text-align: center;}
-#transfer .bank_info p {width: 100%; font-size: 20px;}
-#transfer .bank_info select, 
-#transfer .bank_info input {font-size: 18px;}
-#transfer .bank_info .transfer_box > label input {margin-top: 6px; width: 350px;}
+#transfer .bank_info {display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: center; gap: 16px 6px; text-align: center;}
+#transfer .bank_info select, #transfer .bank_info input {font-size: 18px;}
+#transfer .bank_info .transfer_box {display: flex; flex-direction: column;}
+#transfer .bank_info .transfer_box > label + label {margin-top: 1.6%;}
+#transfer .bank_info .transfer_box > label input {width: 350px;}
 #transfer .bank_info select {width: 120px; padding: 4px 0;}
 #transfer .bank_info input {padding: 4px 10px;}
 #transfer .bank_info button {border-radius: 2px; padding: 4px 12px; font-size: 18px;}
@@ -318,12 +318,10 @@ footer p {margin-top: 16px; font-size: 14px; text-align: center; color: #666;}
 
     /* transfer */
     #transfer .bank_info {gap: 1.1111vw 0.4167vw;}
-    #transfer .bank_info p {font-size: 1.3889vw;}
-    #transfer .bank_info select, 
-    #transfer .bank_info input {font-size: 1.2500vw;}
+    #transfer .bank_info select, #transfer .bank_info input {font-size: 1.2500vw;}
+    #transfer .bank_info .transfer_box > label input {width: 24.3056vw;}
     #transfer .bank_info select {width: 8.3333vw; padding: 0.2778vw 0;}
     #transfer .bank_info input {padding: 0.2778vw 0.6944vw;}
-    #transfer .bank_info .transfer_box > input {margin-top: 0.4167vw; width: 24.3056vw;}
     #transfer .bank_info button {border-radius: 0.1389vw; padding: 0.2778vw 0.8333vw; font-size: 1.2500vw;}
 
     #transfer .bank_list > p {margin: 1.3889vw 0; font-size: 1.3889vw;}
