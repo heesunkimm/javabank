@@ -15,6 +15,7 @@ public class AccountDTO {
 	private String memo;
 	private int deltaAmount;
 	private int balance;
+	private String userName;
 	
 	public String getDepositAccount() {
 		return depositAccount;
@@ -93,5 +94,11 @@ public class AccountDTO {
 	}
 	public void setBalance(int balance) {
 		this.balance = balance;
+	}
+	public String getUserName() {
+		return userName;
+	}
+	public void setUserName(String userName) {
+		this.userName = userName;
 	}
 }
