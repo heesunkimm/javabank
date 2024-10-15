@@ -4,8 +4,9 @@
 <jsp:include page="index_top.jsp"/>
 	<!-- s: content -->
     <section id="transfer" class="content">
-        <form name="transferForm" action="/transfer" method="post">
+        <form name="transferForm" action="/transfer_money" method="post">
         <input class="csrfToken" type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+        <input type="hidden" name="depositAccount" value="${depositAccount}">
             <div class="bank_info">
                 <p style="width: 100%">송금할 계좌를 입력해주세요.</p>
                 <div class="transfer_box">
@@ -25,7 +26,7 @@
             <ul class="my_list account_list">
             	<c:forEach var="account" items="${accountlist}">
                 <li>
-                    <a href="javascript:;" data-account="${account.depositAccount}">
+                    <a class="accountBtn" href="javascript:;" data-account="${account.depositAccount}">
                         <div class="img_box">
                             <img src="../../images/icons/passbook.png">
                         </div>
@@ -40,7 +41,7 @@
             <p>최근 이체</p>
             <ul class="recently_list account_list">
                 <li>
-                    <a href="javascript:;">
+                    <a class="accountBtn" href="javascript:;">
                         <div class="img_box">
                             <img src="../../images/icons/passbook.png">
                         </div>
@@ -65,6 +66,11 @@
 		    let formattedVal = val.replace(/(\d{4})(?=\d)/g, '$1-');
 		    $(this).val(formattedVal);
 		});
+		// 내계좌 또는 최근 이체한 계좌 클릭시 input에 계좌번호 추가 
+		$(".accountBtn").on('click', function() {
+			let btnData = $(this).data("account");
+			$("input[name='transferAccount']").val(btnData);
+		});
 		
 		$(".nextBtn").on('click', function() {
 			let accountVal = $("input[name='transferAccount']").val().trim();
@@ -86,7 +92,7 @@
 		        success: function(res) {
 		        	if (res === "OK") {
 		                alert("계좌가 확인되었습니다.");
-		                //$("form[name='transferForm']").submit();
+		                $("form[name='transferForm']").submit();
 		            } else {
 		                alert("존재하지 않는 계좌입니다.");
 		            }

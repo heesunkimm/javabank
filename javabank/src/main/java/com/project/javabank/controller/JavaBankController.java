@@ -116,7 +116,6 @@ public class JavaBankController {
 	        
 	        // 계좌 중복체크 
 	        int res = mapper.checkAccount(accountNum);
-	        
 	        // 중복계좌가 없는 경우
 	        if (res == 0) {
 	        	isCheck = false;
@@ -164,9 +163,10 @@ public class JavaBankController {
 		return "pages/account_list";
 	}
 	
-	// 송금
+	// 송금 계좌 입력 페이지
 	@GetMapping("transfer")
-	public String transfer(@AuthenticationPrincipal User user, Model model) {
+	public String transfer(@AuthenticationPrincipal User user, Model model, @RequestParam("depositAccount") String depositAccount) {
+		model.addAttribute("depositAccount", depositAccount);
 		// 로그인 유저의 입출금 계좌리스트
 	    List<AccountDTO> accountlist = mapper.loginUserAccount(user.getUsername());
 	    model.addAttribute("accountlist", accountlist);
@@ -186,6 +186,43 @@ public class JavaBankController {
 	        return "OK";
 	    } else {
 	        return "FALSE";
+	    }
+	}
+	
+	// 송금 금액 설정 페이지
+	@RequestMapping("transfer_money")
+	public String transferMoney(@AuthenticationPrincipal User user, Model model, @RequestParam("depositAccount") String depositAccount, @RequestParam("memo") String memo) {
+		String userId = user.getUsername();
+		
+		Map<String, Object> params = new HashMap<>();
+		params.put("userId", userId);
+		params.put("depositAccount", depositAccount);
+		params.put("meno", memo);
+		
+		// 계좌잔액 조회
+		Integer balance = mapper.balanceCheck(params);
+	    
+	    model.addAttribute("depositAccount", depositAccount);
+	    model.addAttribute("balance", balance);
+		
+		return "pages/transfer_money";
+	}
+	
+	@ResponseBody
+	@PostMapping("accountPwCheck.ajax")
+	public String accountPwCheck(@AuthenticationPrincipal User user, Model model, @RequestParam("depositAccount") String depositAccount, @RequestParam("depositPw") String depositPw) {
+		String userId = user.getUsername();
+		Map<String, Object> params = new HashMap<>();
+		params.put("userId", userId);
+		params.put("depositAccount", depositAccount);
+		
+		String res = mapper.accountPwCheck(params);
+		System.out.println("res:" +res + "	pw: " + depositPw);
+		
+		if (!res.trim().equals(depositPw.trim())) {
+	        return "비밀번호가 일치하지 않습니다.";
+	    } else {
+	        return "비밀번호가 일치합니다.";
 	    }
 	}
 	

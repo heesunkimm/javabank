@@ -67,4 +67,12 @@ public class JavaBankMapper {
 	public AccountDTO accountCheck(String transferAccount) {
 	    return sqlSession.selectOne("accountCheck", transferAccount);
 	}
+	// 계좌잔액 체크
+	public int balanceCheck(Map<String, Object> params) {
+		return sqlSession.selectOne("balanceCheck", params);
+	}
+	// 비밀번호 일치여부 체크
+	public String accountPwCheck(Map<String, Object> params) {
+		return sqlSession.selectOne("accountPwCheck", params);
+	}
 }
