@@ -164,10 +164,11 @@ footer p {margin-top: 16px; font-size: 14px; text-align: center; color: #666;}
 #transfer_money .select_box button {width: 70px; border: 2px solid #555; border-radius: 4px; padding: 4px 0; font-size: 18px; color: #555;}
 #transfer_money .select_box button:hover {background-color: #ffe402;}
 
-#pwbox input {width: 160px; padding: 4px 10px; font-size: 18px; text-align: center;}
-#pwbox .pbtn_box button + button {margin-left: 6px;}
-#pwbox .pbtn_box button {border: 1px solid #222; border-radius: 2px; padding: 4px 12px; font-size: 16px;}
-#pwbox .pbtn_box button:hover {background-color: #ffe402;}
+.pwbox {display: none;}
+.pwbox input {width: 160px; padding: 4px 10px; font-size: 18px; text-align: center;}
+.pwbox .pbtn_box button + button {margin-left: 6px;}
+.pwbox .pbtn_box button {border: 1px solid #222; border-radius: 2px; padding: 4px 12px; font-size: 16px;}
+.pwbox .pbtn_box button:hover {background-color: #ffe402;}
 
 /* add_account, add installment_saving, add_deposit */
 .add_bank > p {font-size: 20px; text-align: center;}
@@ -342,9 +343,9 @@ footer p {margin-top: 16px; font-size: 14px; text-align: center; color: #666;}
     #transfer_money .select_box button + button {margin-left: 0.4167vw;}
     #transfer_money .select_box button {width: 4.8611vw; border: 0.1389vw solid #555; border-radius: 0.2778vw; padding: 0.2778vw 0; font-size: 1.2500vw;}
 
-    #pwbox input {width: 11.1111vw; padding: 0.2778vw 0.6944vw; font-size: 1.2500vw;}
-    #pwbox .pbtn_box button + button {margin-left: 0.4167vw;}
-    #pwbox .pbtn_box button {border: 0.0694vw solid #222; border-radius: 0.1389vw; padding: 0.2778vw 0.8333vw; font-size: 1.1111vw;}
+    .pwbox input {width: 11.1111vw; padding: 0.2778vw 0.6944vw; font-size: 1.2500vw;}
+    .pwbox .pbtn_box button + button {margin-left: 0.4167vw;}
+    .pwbox .pbtn_box button {border: 0.0694vw solid #222; border-radius: 0.1389vw; padding: 0.2778vw 0.8333vw; font-size: 1.1111vw;}
 
     /* add_account, add installment_saving, add_deposit */
     .add_bank > p {font-size: 1.3889vw;}
