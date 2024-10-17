@@ -30,7 +30,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 			resp.addCookie(cookie);
 		}
 		
-		resp.sendRedirect("/index?javabank"); // 로그인 성공 후 리다이렉트
+		resp.sendRedirect("/index"); // 로그인 성공 후 리다이렉트
 	}
 
 }
