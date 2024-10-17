@@ -37,7 +37,7 @@
                 <li class="account_items">
                     <div class="txt_box">
                         <p class="account_date font_gray">${account.updateDate}</p>
-                        <p class="account_name">${account.userName}</p>
+                        <p class="account_name">${account.recipientUserId}</p>
                         <p class="account_meno font_darkgray">${account.memo}</p>
                         <p></p>
                     </div>

@@ -57,7 +57,7 @@ public class JavaBankController {
 	    return "pages/index";
 	}
 	
-	// 입출금계좌 추가 페이지
+	// 입출금계좌 개설 페이지
 	@GetMapping("/add_account")
 	public String addAccount(@AuthenticationPrincipal User user, Model model) {
 		String userId = user.getUsername();
@@ -158,6 +158,7 @@ public class JavaBankController {
 	    // 로그인 유저의 입출금 계좌리스트
 	    List<AccountDTO> accountList = mapper.accountList(params);
 	    model.addAttribute("accountList", accountList);
+	    model.addAttribute("depositAccount", depositAccount);
 	    
 		return "pages/account_list";
 	}
@@ -287,5 +288,23 @@ public class JavaBankController {
 	    	}
 	    }
 		return "pages/my_account";
+	}
+	
+	// 정기 예금 개설 페이지
+	@RequestMapping("add_deposit")
+	public String addDeposit() {
+		return "pages/add_deposit";
+	}
+	
+	// 정기적금 개설 페이지
+	@RequestMapping("add_installment_saving")
+	public String addInstallmentSaving() {
+		return "pages/add_installment_saving";
+	}
+	
+	// 알림 페이지
+	@GetMapping("alarm")
+	public String Alarm() {
+		return "pages/alarm";
 	}
 }
