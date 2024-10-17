@@ -14,10 +14,11 @@
 	    WHERE rn = 1
 	</select>
 	<!-- 로그인 유저의 주거래계좌 정보조회 -->
-	<select id="loginUserMainAccountInfo" parameterType="java.util.Map" resultType="AccountDTO">
+	<select id="loginUserMainAccountInfo" parameterType="String" resultType="AccountDTO">
 	    SELECT depositAccount, category, balance
 	    FROM (
-	        SELECT a.depositAccount, a.category, t.balance, ROW_NUMBER() OVER (PARTITION BY a.depositAccount ORDER BY t.updateDate DESC) AS rn
+	        SELECT a.depositAccount, a.category, t.balance, 
+	               ROW_NUMBER() OVER (PARTITION BY a.depositAccount ORDER BY t.updateDate DESC) AS rn
 	        FROM JB_DEPOSIT a 
 	        INNER JOIN JB_Dtransaction t ON a.depositAccount = t.depositAccount 
 	        WHERE a.mainAccount = 'Y' AND a.userId = #{userId}
@@ -72,7 +73,7 @@
 	</insert>
 	<!-- 입출금계좌 거래내역 조회 -->
 	<select id="accountList" parameterType="java.util.Map" resultType="AccountDTO">
-		select a.*, t.updateDate, t.type, t.memo, t.deltaAmount, t.balance, t.transferAccount, u.userName
+		select a.*, t.updateDate, t.deltaAmount, t.type, t.balance, t.depositAccount, t.transferAccount, u.userName
 		from JB_DEPOSIT a
 		inner join JB_USER u on a.userId = u.userId
 		inner join JB_Dtransaction t on a.depositAccount = t.depositAccount
@@ -96,15 +97,19 @@
 		select * from JB_DEPOSIT where depositAccount = #{transferAccount}
 	</select>
 	<!--  계좌잔액 체크 -->
-	<select id="balanceCheck" parameterType="java.util.Map" resultType="int">
-		select balance 
-		from (
-			select balance from JB_Dtransaction where userId = #{userId} and depositAccount = #{depositAccount} order by updateDate desc
-			) 
-		where rownum = 1
+	<select id="balanceCheck" parameterType="String" resultType="int">
+	    select balance from JB_Dtransaction where depositAccount = #{depositAccount} order by updateDate desc fetch first 1 row only
 	</select>
 	<!-- 비밀번호 일치여부 확인 -->
 	<select id="accountPwCheck" parameterType="java.util.Map" resultType="String">
 		select depositPw from JB_DEPOSIT where depositAccount = #{depositAccount} and userId = #{userId}
 	</select>
+	<!-- 송금하기 -->
+	<insert id="insertMoney" parameterType="java.util.Map">
+		insert into JB_Dtransaction (accountSeq, depositAccount, userId, type, memo, deltaAmount, balance, transferAccount)
+		values (accountSeq.nextval, #{depositAccount}, #{userId}, #{type}, #{memo}, #{deltaAmount}, #{balance}, #{transferAccount})
+	</insert>
+	<select id="getUserIdByAccount" parameterType="String" resultType="String">
+        select userId from JB_DEPOSIT where depositAccount = #{depositAccount}
+    </select>
 </mapper>

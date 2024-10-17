@@ -68,11 +68,19 @@ public class JavaBankMapper {
 	    return sqlSession.selectOne("accountCheck", transferAccount);
 	}
 	// 계좌잔액 체크
-	public int balanceCheck(Map<String, Object> params) {
-		return sqlSession.selectOne("balanceCheck", params);
+	public int balanceCheck(String depositAccount) {
+		return sqlSession.selectOne("balanceCheck", depositAccount);
 	}
 	// 비밀번호 일치여부 체크
 	public String accountPwCheck(Map<String, Object> params) {
 		return sqlSession.selectOne("accountPwCheck", params);
+	}
+	// 송금하기
+	public int insertMoney(Map<String,Object> params) {
+		return sqlSession.insert("insertMoney", params);
+	}
+	// 수신 계좌 userId 조회
+	public String getUserIdByAccount(String depositAccount) {
+		return sqlSession.selectOne("getUserIdByAccount", depositAccount);
 	}
 }

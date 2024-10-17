@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.project.javabank.dto.AccountDTO;
+import com.project.javabank.dto.DtransactionDTO;
 import com.project.javabank.dto.ProductDTO;
 import com.project.javabank.dto.UserDTO;
 import com.project.javabank.mapper.JavaBankMapper;
@@ -139,17 +141,14 @@ public class JavaBankController {
 	    } catch(Exception e) {
 	        redirectAttributes.addFlashAttribute("msg", "입출금 통장 개설에 실패하였습니다.");
 	    }
-		
 		return "redirect:/index";
 	}
 	
 	// 입출금계좌 조회 페이지
 	@GetMapping("account_list")
 	public String accountList(@AuthenticationPrincipal User user, @RequestParam String depositAccount , Model model) {
-		String userId = user.getUsername();
-		
 		Map<String, Object> params = new HashMap<>();
-		params.put("userId",userId);
+		params.put("userId",user.getUsername());
 		params.put("depositAccount", depositAccount);
 		
 		// 선택한 계좌의 상세 정보
@@ -191,39 +190,83 @@ public class JavaBankController {
 	
 	// 송금 금액 설정 페이지
 	@RequestMapping("transfer_money")
-	public String transferMoney(@AuthenticationPrincipal User user, Model model, @RequestParam("depositAccount") String depositAccount, @RequestParam("memo") String memo) {
+	public String transferMoney(@AuthenticationPrincipal User user, Model model,
+			@RequestParam("depositAccount") String depositAccount, @RequestParam("memo") String memo, @RequestParam("transferAccount") String transferAccount) {
 		String userId = user.getUsername();
-		
 		Map<String, Object> params = new HashMap<>();
 		params.put("userId", userId);
 		params.put("depositAccount", depositAccount);
 		params.put("meno", memo);
 		
 		// 계좌잔액 조회
-		Integer balance = mapper.balanceCheck(params);
-	    
+		Integer balance = mapper.balanceCheck(depositAccount);
+		
 	    model.addAttribute("depositAccount", depositAccount);
+	    model.addAttribute("memo", memo);
 	    model.addAttribute("balance", balance);
+	    model.addAttribute("transferAccount", transferAccount);
 		
 		return "pages/transfer_money";
 	}
 	
+	// 계좌 비밀번호 확인
 	@ResponseBody
 	@PostMapping("accountPwCheck.ajax")
-	public String accountPwCheck(@AuthenticationPrincipal User user, Model model, @RequestParam("depositAccount") String depositAccount, @RequestParam("depositPw") String depositPw) {
+	public String accountPwCheck(@AuthenticationPrincipal User user, Model model, 
+			@RequestParam("depositAccount") String depositAccount, @RequestParam("depositPw") String depositPw) {
 		String userId = user.getUsername();
 		Map<String, Object> params = new HashMap<>();
 		params.put("userId", userId);
 		params.put("depositAccount", depositAccount);
 		
 		String res = mapper.accountPwCheck(params);
-		System.out.println("res:" +res + "	pw: " + depositPw);
 		
 		if (!res.trim().equals(depositPw.trim())) {
-	        return "비밀번호가 일치하지 않습니다.";
+	        return "FALSE";
 	    } else {
-	        return "비밀번호가 일치합니다.";
+	        return "OK";
 	    }
+	}
+	
+	// 송금
+	 @Transactional
+	@PostMapping("insertMoney")
+	public String insertMoney(@AuthenticationPrincipal User user, RedirectAttributes redirectAttributes, @RequestParam("depositAccount") String depositAccount, 
+			@RequestParam("memo") String memo, @RequestParam("deltaAmount") int deltaAmount, @RequestParam("transferAccount") String transferAccount) {
+		
+		int withdrawBalance = mapper.balanceCheck(depositAccount) - deltaAmount; // 출금 후 잔액
+		
+		// 출금
+		Map<String, Object> withdrawParams = new HashMap<>();
+        withdrawParams.put("depositAccount", depositAccount);
+        withdrawParams.put("userId", user.getUsername());
+        withdrawParams.put("type", "출금");
+        withdrawParams.put("memo", memo);
+        withdrawParams.put("deltaAmount", deltaAmount);
+        withdrawParams.put("balance", withdrawBalance);
+        withdrawParams.put("transferAccount", transferAccount);
+        
+        // 입금
+        Map<String, Object> depositParams = new HashMap<>();
+        depositParams.put("depositAccount", transferAccount);
+        String recipientUserId = mapper.getUserIdByAccount(transferAccount);
+        int depositBalance = mapper.balanceCheck(transferAccount) + deltaAmount; // 입금 후 잔액
+        
+        depositParams.put("userId", recipientUserId);
+        depositParams.put("type", "입금");
+        depositParams.put("memo", memo);
+        depositParams.put("deltaAmount", deltaAmount);
+        depositParams.put("balance", depositBalance);
+        depositParams.put("transferAccount", depositAccount);
+		
+		try {
+            mapper.insertMoney(withdrawParams);
+            mapper.insertMoney(depositParams);
+	        redirectAttributes.addFlashAttribute("msg", "송금이 완료되었습니다.");
+	    } catch(Exception e) {
+	        redirectAttributes.addFlashAttribute("msg", "송금 실패하였습니다.");
+	    }
+		return "redirect:/index";
 	}
 	
 	// 내계좌 모아보기
