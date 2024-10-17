@@ -5,6 +5,7 @@
 <jsp:include page="index_top.jsp"/>
 	<!-- s: content -->
     <section id="my_account" class="content">
+    <input class="csrfToken" type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
         <p>내 계좌 모아보기</p>
         <div class="account_box">
             <p class="account_tit">입출금</p>
@@ -21,7 +22,9 @@
                 <li class="account_item bg_yellow">
                     <!-- 주거래: star.png / 주거래X: star_line.png -->
                     <div class="img_box">
-                        <img src="../../images/icons/star_line.png">
+	                    <a class="changeBtn" href="javascript:;" data-deposit="" data-main="${account.mainAccount}">
+	                        <img src="../../images/icons/star_line.png">
+	                    </a>
                     </div>
                     <div class="txt_box">
                         <p class="account_name">${account.category}</p>
@@ -90,3 +93,29 @@
     </section>
     <!-- e: content -->
 <jsp:include page="index_bottom.jsp"/>
+<script>
+	$(document).ready(function() {
+		let csrfToken = $(".csrfToken").val();
+		
+		$(".changeBtn").on("click", function() {
+			let btn = $(this);
+			let mainAccount = $(this).data("main");
+			console.log(mainAccount);
+			
+			$.ajax({
+				url: "conversionMainAccount.ajax",
+				type: "post",
+				header: {"X-CSRF-TOKEN": csrfToken}, 
+				data: {
+					depositAccount: "",
+					mainAccount : mainAccount
+				},
+				success: function(res){
+					
+				},error: function(err){
+					console.log(res);
+				}
+			});
+		});
+	});
+</script>

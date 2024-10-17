@@ -18,13 +18,15 @@
         </div>
 
         <div class="icon_box">
-            <div class="img_box">
-                <img src="../../images/icons/alarm.png">
-            </div>
-            <p class="alarm_txt">0</p>
-            <div class="setting_btn img_box">
-                <img src="../../images/icons/setting.png">
-            </div>
+        	<a href="alarm">
+	            <div class="img_box">
+	                <img src="../../images/icons/alarm.png">
+	            </div>
+	            <p class="alarm_txt">0</p>
+	            <div class="setting_btn img_box">
+	                <img src="../../images/icons/setting.png">
+	            </div>
+        	</a>
             <ul class="setting_box" style="display: none;">
                 <li><a href="my_account">내계좌 모아보기</a></li>
                 <li><a href="/logout">로그아웃</a></li>

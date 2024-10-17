@@ -70,9 +70,9 @@
 /* header, footer */
 header {display: flex; align-items: center; justify-content: space-between; padding: 20px 0;}
 header .logo_box p {font-size: 38px;}
-header .icon_box {position: relative; display: flex; align-items: center; gap: 8px;}
-header .icon_box .img_box {width: 40px; height: 40px; cursor: pointer;}
-header .icon_box .alarm_txt {position: absolute; left: 0; bottom: 0; width: 16px; height: 16px; border-radius: 50%; background-color: #fc5c50; font-size: 12px; text-align: center; line-height: 16px; color: #fefefe;}
+header .icon_box a {position: relative; display: flex; align-items: center; gap: 8px;}
+header .icon_box a .img_box {width: 40px; height: 40px; cursor: pointer;}
+header .icon_box a .alarm_txt {position: absolute; left: 0; bottom: 0; width: 16px; height: 16px; border-radius: 50%; background-color: #fc5c50; font-size: 12px; text-align: center; line-height: 16px; color: #fefefe;}
 
 header .setting_box {position: absolute; right: 0; top: 50px; width: 160px; border: 1px solid #555; background-color: #fefefe; border-radius: 4px; text-align: center; color: #555; z-index: 101;}
 header .setting_box li + li {border-top: 1px solid #555;}
@@ -202,7 +202,7 @@ footer p {margin-top: 16px; font-size: 14px; text-align: center; color: #666;}
 #my_account .account_box ul .nolist .img_box {width: 40px;}
 
 #my_account .account_box ul .account_item {position: relative; display: flex; align-items: center; justify-content: space-between;}
-#my_account .account_box ul .account_item .img_box {position: absolute; top: 10px; right: 10px; width: 22px; height: 22px; cursor: pointer;}
+#my_account .account_box ul .account_item .img_box {position: absolute; top: 10px; right: 10px; width: 22px; height: 22px;}
 #my_account .account_box ul .account_item + .account_item {margin-top: 10px;}
 #my_account .account_box ul .account_item .txt_box .account_name {font-size: 18px; color: #222;}
 #my_account .account_box ul .account_item .txt_box .account_number {margin-top: 6px; font-size: 16px; color: #656565;}
@@ -259,9 +259,9 @@ footer p {margin-top: 16px; font-size: 14px; text-align: center; color: #666;}
     /* header, footer */
     header {padding: 1.3889vw 0;}
     header .logo_box p {font-size: 2.6389vw;}
-    header .icon_box {gap: 0.5556vw;}
-    header .icon_box .img_box {width: 2.7778vw; height: 2.7778vw;}
-    header .icon_box .alarm_txt {width: 1.1111vw; height: 1.1111vw; font-size: 0.8333vw; line-height: 1.1111vw;}
+    header .icon_box a{gap: 0.5556vw;}
+    header .icon_box a .img_box {width: 2.7778vw; height: 2.7778vw;}
+    header .icon_box a .alarm_txt {width: 1.1111vw; height: 1.1111vw; font-size: 0.8333vw; line-height: 1.1111vw;}
 
     header .setting_box {top: 3.4722vw; width: 11.1111vw; border: 0.0694vw solid #555; border-radius: 0.2778vw;}
     header .setting_box li + li {border-top: 0.0694vw solid #555;}

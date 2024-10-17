@@ -25,17 +25,19 @@
             <p>내계좌</p>
             <ul class="my_list account_list">
             	<c:forEach var="account" items="${accountlist}">
-                <li>
-                    <a class="accountBtn" href="javascript:;" data-account="${account.depositAccount}">
-                        <div class="img_box">
-                            <img src="../../images/icons/passbook.png">
-                        </div>
-                        <div class="txt_box">
-                            <p class="account_name">${account.category}</p>
-                            <p class="deposit_account">${account.depositAccount}</p>
-                        </div>
-                    </a>
-                </li>
+	            	<c:if test="${account.depositAccount != depositAccount}">
+	                <li>
+	                    <a class="accountBtn" href="javascript:;" data-account="${account.depositAccount}">
+	                        <div class="img_box">
+	                            <img src="../../images/icons/passbook.png">
+	                        </div>
+	                        <div class="txt_box">
+	                            <p class="account_name">${account.category}</p>
+	                            <p class="deposit_account">${account.depositAccount}</p>
+	                        </div>
+	                    </a>
+	                </li>
+	            	</c:if>
             	</c:forEach>
             </ul>
             <p>최근 이체</p>

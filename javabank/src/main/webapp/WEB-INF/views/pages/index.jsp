@@ -96,7 +96,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="javascript:;">
+                    <a href="add_deposit">
                         <div class="img_box">
                             <img src="../../images/icons/account.png">
                         </div>
@@ -105,7 +105,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="javascript:;">
+                    <a href="add_installment_saving">
                         <div class="img_box">
                             <img src="../../images/icons/account.png">
                         </div>
