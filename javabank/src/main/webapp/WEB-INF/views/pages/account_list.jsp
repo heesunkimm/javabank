@@ -42,10 +42,20 @@
                         <p></p>
                     </div>
                     <div class="account_info">
-                        <p class="account_type font_blue">${account.type}</p>
-                        <p class="delta_amount font_blue">
-                        	<fmt:formatNumber value="${account.deltaAmount}" pattern="#,###"/>원
-                        </p>
+                   	<c:choose>
+					    <c:when test="${account.type eq '출금'}">
+						    <p class="account_type font_red">${account.type}</p>
+	                        <p class="delta_amount font_red">
+	                        	<fmt:formatNumber value="-${account.deltaAmount}" pattern="#,###"/>원
+	                        </p>
+					    </c:when>
+					    <c:otherwise>
+						    <p class="account_type font_blue">${account.type}</p>
+	                        <p class="delta_amount font_blue">
+	                        	<fmt:formatNumber value="${account.deltaAmount}" pattern="#,###"/>원
+	                        </p>
+					    </c:otherwise>
+					</c:choose>
                         <p class="account_balance font_darkgray">
                         	<fmt:formatNumber value="${account.balance}" pattern="#,###"/>원
                         </p>

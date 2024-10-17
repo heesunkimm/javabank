@@ -7,6 +7,8 @@
         <form name="insertMoneyForm" action="/insertMoney" method="post">
         <input class="csrfToken" type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
         <input type="hidden" name="depositAccount" value="${depositAccount}">
+        <input type="hidden" name="transferAccount" value="${transferAccount}">
+        <input type="hidden" name="memo" value="${memo}">
             <div class="bank_info">
                 <p>송금할 금액를 입력해주세요.</p>
                 <label>
@@ -89,9 +91,13 @@
 					depositAccount: depositAccount
 					},
 				success: function(res) {
-					alert(res);
-					// $("form[name='insertMoneyForm']").submit();
-					
+					if(res === "OK") {
+						alert("비밀번호가 일치합니다.");
+						$("form[name='insertMoneyForm']").submit();
+					}else {
+						alert("비밀번호가 일치하지 않습니다.");
+						$("input[name='depositPw']").val("").focus();
+					}
 				},
 				error: function(err) {
 					console.log(err);
@@ -102,8 +108,15 @@
 		});
 		// 팝업창 닫기 이벤트
 		$(".pwbox .closeBtn").on('click', function() {
+			$("input[name='depositPw']").val("");
 			$(".pwbox, .dimm").removeClass('s_active');
 		});
 		
+		// msg가 존재하는 경우 alert
+		let msg = "${msg}";
+		console.log(msg);
+		if (msg && msg.trim() !== "") {
+		    alert(msg);
+		}
 	});
 </script>
