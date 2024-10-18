@@ -42,7 +42,7 @@
 <script>
 	$(document).ready(function() {
 		// 숫자 정규표현식 변환
-	    $("input[name='password']").keyup(function() {
+	    $("input[type='password']").keyup(function() {
 	        let value = $(this).val().replace(/[^0-9]/g, '');
 	        $(this).val(value);
 	    });

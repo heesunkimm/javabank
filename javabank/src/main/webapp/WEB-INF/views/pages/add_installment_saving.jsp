@@ -14,11 +14,12 @@
                 <p>통장 비밀번호 설정</p>
                 <div class="passwd_box">
                     <label>
-                        <input type="password" placeholder="비밀번호 4자리 입력" required>
+                        <input type="password" name="productPw" placeholder="비밀번호 4자리 입력" required>
                     </label>
                     <label>
-                        <input type="password" placeholder="비밀번호확인 4자리 입력" required>
+                        <input type="password" name="productPw02" placeholder="비밀번호확인 4자리 입력" required>
                     </label>
+                    <span class="passwd_noti"></span>
                 </div>
             </div>
 

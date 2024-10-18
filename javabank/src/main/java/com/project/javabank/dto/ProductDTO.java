@@ -7,10 +7,12 @@ public class ProductDTO {
 	private String category;
 	private int autoTransferDate;
 	private int monthlyPayment;
+	private int payment;
 	private String regDate;
 	private String expiryDate;
-	private int interestRate;
+	private double interestRate;
 	private String depositAccount;
+	private String productEnable;
 	// 조인한 테이블 컬럼 추가
 	private int balance;
 	
@@ -50,6 +52,12 @@ public class ProductDTO {
 	public void setMonthlyPayment(int monthlyPayment) {
 		this.monthlyPayment = monthlyPayment;
 	}
+	public int getPayment() {
+		return payment;
+	}
+	public void setPayment(int payment) {
+		this.payment = payment;
+	}
 	public String getRegDate() {
 		return regDate;
 	}
@@ -62,10 +70,10 @@ public class ProductDTO {
 	public void setExpiryDate(String expiryDate) {
 		this.expiryDate = expiryDate;
 	}
-	public int getInterestRate() {
+	public double getInterestRate() {
 		return interestRate;
 	}
-	public void setInterestRate(int interestRate) {
+	public void setInterestRate(double interestRate) {
 		this.interestRate = interestRate;
 	}
 	public String getDepositAccount() {
@@ -73,6 +81,12 @@ public class ProductDTO {
 	}
 	public void setDepositAccount(String depositAccount) {
 		this.depositAccount = depositAccount;
+	}
+	public String getProductEnable() {
+		return productEnable;
+	}
+	public void setProductEnable(String productEnable) {
+		this.productEnable = productEnable;
 	}
 	public int getBalance() {
 		return balance;
