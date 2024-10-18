@@ -119,7 +119,16 @@
 		insert into JB_Dtransaction (accountSeq, depositAccount, userId, type, memo, deltaAmount, balance, transferAccount)
 		values (accountSeq.nextval, #{depositAccount}, #{userId}, #{type}, #{memo}, #{deltaAmount}, #{balance}, #{transferAccount})
 	</insert>
+	<!-- 수신 계좌 userId 조회 -->
 	<select id="getUserIdByAccount" parameterType="String" resultType="String">
         select userId from JB_DEPOSIT where depositAccount = #{depositAccount}
+    </select>
+    <!-- 전체 입출금계좌 정보 조회 -->
+    <select id="AllUserAccount" resultType="AccountDTO">
+    	select a.*, t.balance 
+    	from JB_DEPOSIT a 
+		left join (select depositAccount, balance, row_number() over (partition by depositAccount order by updateDate desc) as rn from JB_Dtransaction) t 
+		on a.depositAccount = t.depositAccount where t.rn = 1
+
     </select>
 </mapper>

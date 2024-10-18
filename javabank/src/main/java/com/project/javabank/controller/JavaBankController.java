@@ -1,5 +1,8 @@
 package com.project.javabank.controller;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -7,7 +10,10 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
@@ -34,6 +40,12 @@ public class JavaBankController {
 
 	@Autowired
 	private JavaBankMapper mapper;
+	
+	// 로그 선언
+	private static final Logger logger = LoggerFactory.getLogger(JavaBankController.class);
+	// logger.info: 일반 정보성 메세지 기록
+	// logger.error: 오류 발생 시 예외메세지와 함꼐 기록
+	// logger.debug: 디버깅용 상세 로그 기록
 	
 	@GetMapping("/index")
 	public String index(@AuthenticationPrincipal User user,
@@ -288,6 +300,39 @@ public class JavaBankController {
 	    	}
 	    }
 		return "pages/my_account";
+	}
+	
+	// 입출금 계좌 이자 스케줄링
+	@Scheduled(cron = "0 0 0 1 * *")
+	public void AccountScheduled() {
+		List<AccountDTO> accountList = mapper.AllUserAccount();
+        
+		for(AccountDTO account : accountList) {
+			try {
+				// 이자계산
+				double interest = account.getBalance() * account.getInterestRate();
+				int deltaAmount = (int) interest;
+				int balance = account.getBalance() + deltaAmount;
+				
+				Map<String, Object> params = new HashMap<>();
+				params.put("depositAccount", account.getDepositAccount());
+				params.put("userId", account.getUserId());
+				params.put("type", "이자입금");
+				params.put("deltaAmount", deltaAmount);
+				params.put("balance", balance);
+				params.put("transferAccount", "0925-0925-0925-0925");
+				
+				// 이자입금
+				int res = mapper.insertMoney(params);
+				if(res>0) {
+	                logger.info("이자 입금 성공 - 계좌번호: " + account.getDepositAccount() + ", 이자: " + deltaAmount + "원");
+				}else {
+                    throw new Exception("이자 입금 실패 - 계좌번호: " + account.getDepositAccount());
+				}
+			}catch(Exception e) {
+                logger.error("이자 입금 실패 - 계좌번호: " + account.getDepositAccount(), e);
+			}
+		}
 	}
 	
 	// 정기 예금 개설 페이지

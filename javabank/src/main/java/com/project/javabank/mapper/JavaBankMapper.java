@@ -83,4 +83,8 @@ public class JavaBankMapper {
 	public String getUserIdByAccount(String depositAccount) {
 		return sqlSession.selectOne("getUserIdByAccount", depositAccount);
 	}
+	// 전체 입출금계좌 조회
+	public List<AccountDTO> AllUserAccount() {
+		return sqlSession.selectList("AllUserAccount");
+	}
 }
