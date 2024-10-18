@@ -70,7 +70,7 @@
 /* header, footer */
 header {display: flex; align-items: center; justify-content: space-between; padding: 20px 0;}
 header .logo_box p {font-size: 38px;}
-header .icon_box a {position: relative; display: flex; align-items: center; gap: 8px;}
+header .icon_box {position: relative; display: flex; align-items: center; gap: 8px;}
 header .icon_box a .img_box {width: 40px; height: 40px; cursor: pointer;}
 header .icon_box a .alarm_txt {position: absolute; left: 0; bottom: 0; width: 16px; height: 16px; border-radius: 50%; background-color: #fc5c50; font-size: 12px; text-align: center; line-height: 16px; color: #fefefe;}
 
@@ -259,7 +259,7 @@ footer p {margin-top: 16px; font-size: 14px; text-align: center; color: #666;}
     /* header, footer */
     header {padding: 1.3889vw 0;}
     header .logo_box p {font-size: 2.6389vw;}
-    header .icon_box a{gap: 0.5556vw;}
+    header .icon_box {gap: 0.5556vw;}
     header .icon_box a .img_box {width: 2.7778vw; height: 2.7778vw;}
     header .icon_box a .alarm_txt {width: 1.1111vw; height: 1.1111vw; font-size: 0.8333vw; line-height: 1.1111vw;}
 

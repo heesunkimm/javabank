@@ -23,6 +23,8 @@
 	                <img src="../../images/icons/alarm.png">
 	            </div>
 	            <p class="alarm_txt">0</p>
+        	</a>
+        	<a href="javascript:;">
 	            <div class="setting_btn img_box">
 	                <img src="../../images/icons/setting.png">
 	            </div>

@@ -6,7 +6,7 @@ public class AccountDTO {
 	private String userId;
 	private String category;
 	private String regDate;
-	private String interestRate;
+	private double interestRate;
 	private int transactionLimit;
 	private String mainAccount;
 	// 조인되는 테이블 컬럼 추가
@@ -48,10 +48,10 @@ public class AccountDTO {
 	public void setRegDate(String regDate) {
 		this.regDate = regDate;
 	}
-	public String getInterestRate() {
+	public double getInterestRate() {
 		return interestRate;
 	}
-	public void setInterestRate(String interestRate) {
+	public void setInterestRate(double interestRate) {
 		this.interestRate = interestRate;
 	}
 	public int getTransactionLimit() {
