@@ -52,7 +52,6 @@
 	                </div>
 	                <div class="btn_box">
 	                    <button type="button" onclick="location.href='account_list?productAccount=${deposit.productAccount}'">조회</button>
-	                    <!-- <button type="button">이체</button> -->
 	                </div>
 	            </li>
 			    </c:forEach>
@@ -74,7 +73,6 @@
                     </div>
                     <div class="btn_box">
                         <button type="button">조회</button>
-                        <!-- <button type="button">이체</button> -->
                     </div>
                 </li>
 			    </c:forEach>

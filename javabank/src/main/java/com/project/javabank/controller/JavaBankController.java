@@ -52,15 +52,23 @@ public class JavaBankController {
 	    // 로그인 유저의 주거래 입출금계좌 조회
 	    AccountDTO mainAccount = mapper.loginUserMainAccountInfo(user.getUsername());
 	    model.addAttribute("mainAccount", mainAccount);
+	    
 	    // 로그인 유저의 예적금 계좌리스트
 	    List<ProductDTO> pdtlist = mapper.loginUserProduct(user.getUsername());
+	    
+	    // 정기예금, 정기적금 리스트 분리
+	    List<ProductDTO> depositList = new ArrayList<>();
+	    List<ProductDTO> savingAccountList = new ArrayList<>();
+	    
 	    for (ProductDTO pdto : pdtlist) {
 	    	if(pdto.getCategory().equals("정기예금")) {
-	    	    model.addAttribute("depositList", pdtlist);
+	    		depositList.add(pdto);
 	    	}else if (pdto.getCategory().equals("정기적금")) {
-	    		model.addAttribute("savingAccountList", pdtlist);
+	    		savingAccountList.add(pdto);
 	    	}
 	    }
+	    model.addAttribute("depositList", depositList);
+	    model.addAttribute("savingAccountList", savingAccountList);
 	    return "pages/index";
 	}
 	
