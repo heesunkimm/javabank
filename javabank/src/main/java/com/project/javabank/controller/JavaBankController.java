@@ -1,14 +1,9 @@
 package com.project.javabank.controller;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
+import java.text.DecimalFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,12 +117,10 @@ public class JavaBankController {
 	            }
 	            numCheck.add(sb.toString());
 	        }
-
 	        // Set을 리스트로 변환하여 계좌번호에 추가
 	        for (String num : numCheck) {
 	            accountNum += "-" + num;
 	        }
-	        
 	        // 계좌 중복체크 
 	        int res = mapper.checkAccount(accountNum);
 	        // 중복계좌가 없는 경우
@@ -137,6 +130,8 @@ public class JavaBankController {
 	    }
 		
         String depositAccount = accountNum;
+        String str[] = depositAccount.split("-");
+        String lastAccount = str[str.length -1];
 		
 		Map<String, Object> params = new HashMap<>();
 		params.put("depositAccount", depositAccount);
@@ -146,19 +141,23 @@ public class JavaBankController {
 		params.put("mainAccount", mainAccount);
 		params.put("userName", userName);
 		
+		// 알람추가
+		params.put("alarmCate", "입출금계좌 개설");
+		params.put("alarmCont", "입출금계좌[" + lastAccount + "]가 개설되었습니다.");
+		
 		// 입출금통장 개설
 		try {
 			mapper.addAccount(params);
-	        redirectAttributes.addFlashAttribute("msg", "입출금 통장이 개설되었습니다.");
+	        redirectAttributes.addFlashAttribute("msg", "입출금계좌가 개설되었습니다.");
 	    } catch(Exception e) {
-	        redirectAttributes.addFlashAttribute("msg", "입출금 통장 개설에 실패하였습니다.");
+	        redirectAttributes.addFlashAttribute("msg", "입출금계좌 개설에 실패하였습니다.");
 	    }
 		return "redirect:/index";
 	}
 	
 	// 입출금계좌 조회 페이지
 	@GetMapping("account_list")
-	public String accountList(@AuthenticationPrincipal User user, @RequestParam String depositAccount , Model model) {
+	public String accountList(@AuthenticationPrincipal User user, @RequestParam String depositAccount, Model model) {
 		Map<String, Object> params = new HashMap<>();
 		params.put("userId",user.getUsername());
 		params.put("depositAccount", depositAccount);
@@ -171,6 +170,10 @@ public class JavaBankController {
 	    List<AccountDTO> accountList = mapper.accountList(params);
 	    model.addAttribute("accountList", accountList);
 	    model.addAttribute("depositAccount", depositAccount);
+	    
+	    // 로그인 유저의 최근 입출금거래 계좌리스트
+//	    List<DtransactionDTO> recentlyList = mapper.recentlyAccountList(depositAccount);
+//	    model.addAttribute("recentlyList", recentlyList);
 	    
 		return "pages/account_list";
 	}
@@ -212,7 +215,8 @@ public class JavaBankController {
 		params.put("meno", memo);
 		
 		// 계좌잔액 조회
-		Integer balance = mapper.balanceCheck(depositAccount);
+		DtransactionDTO balanceCheck = mapper.balanceCheck(depositAccount);
+		Integer balance = balanceCheck.getBalance();
 		
 	    model.addAttribute("depositAccount", depositAccount);
 	    model.addAttribute("memo", memo);
@@ -242,12 +246,13 @@ public class JavaBankController {
 	}
 	
 	// 송금
-	 @Transactional
+	@Transactional
 	@PostMapping("insertMoney")
 	public String insertMoney(@AuthenticationPrincipal User user, RedirectAttributes redirectAttributes, @RequestParam("depositAccount") String depositAccount, 
 			@RequestParam("memo") String memo, @RequestParam("deltaAmount") int deltaAmount, @RequestParam("transferAccount") String transferAccount) {
 		
-		int withdrawBalance = mapper.balanceCheck(depositAccount) - deltaAmount; // 출금 후 잔액
+		DtransactionDTO WbalanceCheck = mapper.balanceCheck(depositAccount);
+		int withdrawBalance = WbalanceCheck.getBalance() - deltaAmount; // 출금 후 잔액
 		
 		// 출금
 		Map<String, Object> withdrawParams = new HashMap<>();
@@ -263,7 +268,8 @@ public class JavaBankController {
         Map<String, Object> depositParams = new HashMap<>();
         depositParams.put("depositAccount", transferAccount);
         String recipientUserId = mapper.getUserIdByAccount(transferAccount);
-        int depositBalance = mapper.balanceCheck(transferAccount) + deltaAmount; // 입금 후 잔액
+        DtransactionDTO DbalanceCheck = mapper.balanceCheck(transferAccount);
+		int depositBalance = DbalanceCheck.getBalance() + deltaAmount; // 입금 후 잔액
         
         depositParams.put("userId", recipientUserId);
         depositParams.put("type", "입금");
@@ -336,16 +342,247 @@ public class JavaBankController {
 	}
 	
 	// 정기 예금 개설 페이지
-	@RequestMapping("add_deposit")
-	public String addDeposit() {
+	@GetMapping("add_deposit")
+	public String addDeposit(@AuthenticationPrincipal User user, Model model) {
+		String userId = user.getUsername();
+	    // 로그인 유저이름 가져오기
+	    UserDTO udto = mapper.loginUserById(userId);
+	    model.addAttribute("loginUser", udto.getUserName());
+		
+	    // 로그인 유저의 입출금 계좌리스트
+	    List<AccountDTO> accountList = mapper.loginUserAccount(user.getUsername());
+	    for(AccountDTO account : accountList) {
+	    	String depositAccount = account.getDepositAccount();
+	    	// 계좌잔액 조회
+	    	DtransactionDTO balanceCheck = mapper.balanceCheck(depositAccount);
+	    	Integer balance = balanceCheck.getBalance();
+	    }
+	    model.addAttribute("accountList", accountList);
+		
 		return "pages/add_deposit";
+	}
+	@PostMapping("add_deposit")
+	public String addDeposit(@AuthenticationPrincipal User user, Model model, RedirectAttributes redirectAttributes, @ModelAttribute ProductDTO dto) {
+		// 중복되지 않는 계좌번호 생성
+  		Random random = new Random();
+  	    String accountNum = "0426";
+  	    
+  	    boolean isCheck = true;
+	  	    
+  	    while (isCheck) {
+  	        // 계좌번호 4자리씩 3개 그룹 생성
+  	        Set<String> numCheck = new HashSet<>();
+  	        
+  	        // 4자리씩 3개의 그룹을 생성하여 Set에 저장
+  	        while (numCheck.size() < 3) {
+  	            StringBuilder sb = new StringBuilder();
+  	            for (int i = 0; i < 4; i++) {
+  	                int num = random.nextInt(10);
+  	                sb.append(num);
+  	            }
+  	            numCheck.add(sb.toString());
+  	        }
+  	        // Set을 리스트로 변환하여 계좌번호에 추가
+  	        for (String num : numCheck) {
+  	            accountNum += "-" + num;
+  	        }
+  	        // 계좌 중복체크 
+  	        int res = mapper.checkAccount(accountNum);
+  	        // 중복계좌가 없는 경우
+  	        if (res == 0) {
+  	        	isCheck = false;
+  	        }
+  	    }
+
+  	    String productAccount = accountNum;
+        String str[] = productAccount.split("-");
+        String lastAccount = str[str.length -1];
+  	    double interestRate = dto.getInterestRate();
+  	    
+ 		Map<String, Object> params = new HashMap<>();
+ 		// 상품계좌 생성 파라미터
+ 		params.put("productAccount", productAccount);
+ 		params.put("productPw", dto.getProductPw());
+ 		params.put("userId", user.getUsername());
+ 		params.put("category", "정기예금");
+ 		params.put("autoTransferDate","");
+ 		params.put("monthlyPayment","");
+ 		params.put("payment", dto.getPayment());
+ 		params.put("interestRate", interestRate);
+ 		params.put("depositAccount", dto.getDepositAccount());
+  	  
+  	    // 오늘 날짜
+  	    LocalDateTime currentTime = LocalDateTime.now();
+  	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+  	    String Today = currentTime.format(formatter);
+  	    
+  	    if(interestRate == 0.028) {
+          String expiryDate = currentTime.plusMonths(6).format(formatter);
+          params.put("expiryDate", expiryDate);
+  	    	
+  	    }else {
+  	    	String expiryDate = currentTime.plusYears(1).format(formatter);
+  	    	params.put("expiryDate", expiryDate);
+  	    }
+
+  	    // 상품 최초 거래내역 파라미터
+ 		params.put("pdtType", "개설");
+ 		params.put("pdtMemo", "");
+ 		params.put("pdtDeltaAmount", dto.getPayment());
+ 		params.put("pdtBalance", dto.getPayment());
+ 		
+ 		DtransactionDTO balanceCheck = mapper.balanceCheck(dto.getDepositAccount());
+    	Integer balance = balanceCheck.getBalance();
+    	Integer total = balance - dto.getPayment();
+    	String userId = balanceCheck.getUserId();
+    	
+ 		// 입출금계좌에서 예금금액 출금
+ 		params.put("userId", userId);
+ 		params.put("type", "출금");
+ 		params.put("memo", "정기예금개설");
+ 		params.put("deltaAmount", dto.getPayment());
+ 		params.put("balance", total);
+ 		params.put("transferAccount", productAccount);
+
+		// 알람추가
+		params.put("alarmCate", "정기예금 개설");
+		params.put("alarmCont", "정기예금[" + lastAccount + "]이 개설되었습니다.");
+		
+  	    // 정기예금 개설
+		try {
+			mapper.addProduct(params);
+	        redirectAttributes.addFlashAttribute("msg", "정기예금이 개설되었습니다.");
+	    } catch(Exception e) {
+	        redirectAttributes.addFlashAttribute("msg", "정기예금 개설에 실패하였습니다.");
+	    }
+		return "redirect:/index";
 	}
 	
 	// 정기적금 개설 페이지
-	@RequestMapping("add_installment_saving")
-	public String addInstallmentSaving() {
+	@GetMapping("add_installment_saving")
+	public String addInstallmentSaving(@AuthenticationPrincipal User user, Model model) {
+		String userId = user.getUsername();
+	    // 로그인 유저이름 가져오기
+	    UserDTO udto = mapper.loginUserById(userId);
+	    model.addAttribute("loginUser", udto.getUserName());
+	    
+	    // 로그인 유저의 입출금 계좌리스트
+	    List<AccountDTO> accountList = mapper.loginUserAccount(user.getUsername());
+	    for(AccountDTO account : accountList) {
+	    	String depositAccount = account.getDepositAccount();
+	    	// 계좌잔액 조회
+	    	DtransactionDTO balanceCheck = mapper.balanceCheck(depositAccount);
+	    	Integer balance = balanceCheck.getBalance();
+	    }
+	    model.addAttribute("accountList", accountList);
+	    
 		return "pages/add_installment_saving";
 	}
+	@PostMapping("add_installment_saving")
+	public String addInstallmentSaving(@AuthenticationPrincipal User user, Model model, RedirectAttributes redirectAttributes, @ModelAttribute ProductDTO dto) {
+		// 중복되지 않는 계좌번호 생성
+  		Random random = new Random();
+  	    String accountNum = "0808";
+  	    
+  	    boolean isCheck = true;
+	  	    
+  	    while (isCheck) {
+  	        // 계좌번호 4자리씩 3개 그룹 생성
+  	        Set<String> numCheck = new HashSet<>();
+  	        
+  	        // 4자리씩 3개의 그룹을 생성하여 Set에 저장
+  	        while (numCheck.size() < 3) {
+  	            StringBuilder sb = new StringBuilder();
+  	            for (int i = 0; i < 4; i++) {
+  	                int num = random.nextInt(10);
+  	                sb.append(num);
+  	            }
+  	            numCheck.add(sb.toString());
+  	        }
+  	        // Set을 리스트로 변환하여 계좌번호에 추가
+  	        for (String num : numCheck) {
+  	            accountNum += "-" + num;
+  	        }
+  	        // 계좌 중복체크 
+  	        int res = mapper.checkAccount(accountNum);
+  	        // 중복계좌가 없는 경우
+  	        if (res == 0) {
+  	        	isCheck = false;
+  	        }
+  	    }
+
+  	    String productAccount = accountNum;
+        String str[] = productAccount.split("-");
+        String lastAccount = str[str.length -1];
+        
+  	    double interestRate = dto.getInterestRate();
+  	    
+ 		Map<String, Object> params = new HashMap<>();
+ 		// 상품계좌 생성 파라미터
+ 		params.put("productAccount", productAccount);
+ 		params.put("productPw", dto.getProductPw());
+ 		params.put("userId", user.getUsername());
+ 		params.put("category", "정기적금");
+ 		params.put("autoTransferDate", dto.getAutoTransferDate());
+ 		params.put("monthlyPayment",dto.getMonthlyPayment());
+ 		params.put("payment", "");
+ 		params.put("interestRate", interestRate);
+ 		params.put("depositAccount", dto.getDepositAccount());
+  	  
+  	    // 오늘 날짜
+  	    LocalDateTime currentTime = LocalDateTime.now();
+  	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+  	    String Today = currentTime.format(formatter);
+  	    
+  	    if(interestRate == 0.033) {
+          String expiryDate = currentTime.plusMonths(6).format(formatter);
+          params.put("expiryDate", expiryDate);
+  	    	
+  	    }else {
+  	    	String expiryDate = currentTime.plusYears(1).format(formatter);
+  	    	params.put("expiryDate", expiryDate);
+  	    }
+
+  	    // 상품 최초 거래내역 파라미터
+ 		params.put("pdtType", "개설");
+ 		params.put("pdtMemo", "");
+ 		params.put("pdtDeltaAmount", dto.getMonthlyPayment());
+ 		params.put("pdtBalance", dto.getMonthlyPayment());
+ 		
+ 		DtransactionDTO balanceCheck = mapper.balanceCheck(dto.getDepositAccount());
+    	Integer balance = balanceCheck.getBalance();
+    	Integer total = balance - dto.getMonthlyPayment();
+    	String userId = balanceCheck.getUserId();
+    	
+ 		// 입출금계좌에서 최초 적금금액 출금
+ 		params.put("userId", userId);
+ 		params.put("type", "출금");
+ 		params.put("memo", "정기적금개설");
+ 		params.put("deltaAmount", dto.getMonthlyPayment());
+ 		params.put("balance", total);
+ 		params.put("transferAccount", productAccount);
+
+		// 알람추가
+		params.put("alarmCate", "정기적금 개설");
+		params.put("alarmCont", "정기적금[" + lastAccount + "]이 개설되었습니다.");
+ 		
+  	    // 정기적금 개설
+		try {
+			mapper.addProduct(params);
+	        redirectAttributes.addFlashAttribute("msg", "정기적금이 개설되었습니다.");
+	    } catch(Exception e) {
+	        redirectAttributes.addFlashAttribute("msg", "정기적금 개설에 실패하였습니다.");
+	    }
+		return "redirect:/index";
+	}
+	
+	// 정기적금 이자 스케줄링
+//	@Scheduled(cron = "0 0 0 5 * *") {
+//	}
+//	@Scheduled(cron = "0 0 0 10 * *") {
+//	}
+//	@Scheduled(cron = "0 0 0 25 * *") {
+//	}
 	
 	// 알림 페이지
 	@GetMapping("alarm")

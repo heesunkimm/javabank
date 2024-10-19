@@ -83,32 +83,25 @@
 		left join JB_USER u2 on d2.userId = u2.userId
 		where a.depositAccount = #{depositAccount} and a.userId = #{userId}
 		order by t.updateDate desc
-		<!-- select a.*, t.updateDate, t.deltaAmount, t.type, t.balance, t.depositAccount, t.transferAccount, u.userName
-		from JB_DEPOSIT a
-		inner join JB_USER u on a.userId = u.userId
-		inner join JB_Dtransaction t on a.depositAccount = t.depositAccount
-		where a.depositAccount = #{depositAccount} and a.userId = #{userId}
-		order by t.updateDate desc -->
 	</select>
 	<!-- 로그인 유저의 최근 입출금거래 계좌리스트 -->
 	<!-- <select id="recentlyAccountList" parameterType="String" resultType="DtransactionDTO">
-	    SELECT *
-		FROM (
-		    SELECT t.*, ROW_NUMBER() OVER (PARTITION BY transferAccount ORDER BY updateDate DESC) AS rn
-		    FROM JB_Dtransaction t
-		    WHERE depositAccount = #{depositAccount}
-		) 
-		WHERE rn = 1
-		AND ROWNUM <= 7
-		ORDER BY updateDate DESC
+	    select * 
+	    from (
+	        select t.*, row_number() over (partition by transferAccount order by updateDate desc) as rn 
+	        from JB_Dtransaction t 
+	        where depositAccount = #{depositAccount} and transferAccount != #{depositAccount}
+	    ) 
+	    where rn = 1 and rownum <= 7 
+	    order by updateDate desc
 	</select> -->
 	<!-- db에 존재하는 계좌 체크 -->
 	<select id="accountCheck" parameterType="String" resultType="AccountDTO">
 		select * from JB_DEPOSIT where depositAccount = #{transferAccount}
 	</select>
 	<!--  계좌잔액 체크 -->
-	<select id="balanceCheck" parameterType="String" resultType="int">
-	    select balance from JB_Dtransaction where depositAccount = #{depositAccount} order by updateDate desc fetch first 1 row only
+	<select id="balanceCheck" parameterType="String" resultType="DtransactionDTO">
+	    select userId, balance from JB_Dtransaction where depositAccount = #{depositAccount} order by updateDate desc fetch first 1 row only
 	</select>
 	<!-- 비밀번호 일치여부 확인 -->
 	<select id="accountPwCheck" parameterType="java.util.Map" resultType="String">
@@ -129,6 +122,19 @@
     	from JB_DEPOSIT a 
 		left join (select depositAccount, balance, row_number() over (partition by depositAccount order by updateDate desc) as rn from JB_Dtransaction) t 
 		on a.depositAccount = t.depositAccount where t.rn = 1
-
     </select>
+    <!-- 상품계좌 생성 -->
+    <insert id="addProduct" parameterType="java.util.Map">
+    	insert into JB_PRODUCT (productAccount, productPw, userId, category, autoTransferDate, monthlyPayment, payment, expiryDate, interestRate, depositAccount) 
+    	values (#{productAccount}, #{productPw}, #{userId}, #{category}, #{autoTransferDate}, #{monthlyPayment}, #{payment}, #{expiryDate}, #{interestRate}, #{depositAccount})
+    </insert>
+    <!-- 상품 최초 거래내역 생성 -->
+    <insert id="addProductDetails" parameterType="java.util.Map">
+    	insert into JB_Ptransaction (productSeq, productAccount, type, memo, deltaAmount, balance) 
+    	values (productSeq.nextval, #{productAccount}, #{pdtType}, #{pdtMemo}, #{pdtDeltaAmount}, #{pdtBalance})
+    </insert>
+    <!-- 알림추가 -->
+    <insert id="newAlarm" parameterType="java.util.Map">
+    	insert into JB_ALARM (alarmSeq, userId, alarmCate, alarmCont) values (alarmSeq.nextval, #{userId}, #{alarmCate}, #{alarmCont})
+    </insert>
 </mapper>

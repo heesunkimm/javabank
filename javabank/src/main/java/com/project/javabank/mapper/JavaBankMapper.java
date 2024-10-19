@@ -52,8 +52,10 @@ public class JavaBankMapper {
 	public void addAccount(Map<String, Object> params) {
 		// 계좌추가
 		sqlSession.insert("addAccount", params);
-		// 첫거 내역 추가
+		// 첫거래 내역 추가
 		sqlSession.insert("addAccountDetails", params);
+		// 알람추가
+		sqlSession.insert("newAlarm", params);
 	}
 	// 입출금계좌 조회
 	public List<AccountDTO> accountList(Map<String, Object> params) {
@@ -68,7 +70,7 @@ public class JavaBankMapper {
 	    return sqlSession.selectOne("accountCheck", transferAccount);
 	}
 	// 계좌잔액 체크
-	public int balanceCheck(String depositAccount) {
+	public DtransactionDTO balanceCheck(String depositAccount) {
 		return sqlSession.selectOne("balanceCheck", depositAccount);
 	}
 	// 비밀번호 일치여부 체크
@@ -86,5 +88,17 @@ public class JavaBankMapper {
 	// 전체 입출금계좌 조회
 	public List<AccountDTO> AllUserAccount() {
 		return sqlSession.selectList("AllUserAccount");
+	}
+	// 입출금계좌 생성 및 최초 거래내역 0원으로 생성
+	@Transactional
+	public void addProduct (Map<String, Object> params) {
+		// 상품 추가
+		sqlSession.insert("addProduct", params);
+		// 첫거래 내역 추가
+		sqlSession.insert("addProductDetails", params);
+		// 입출금계좌에서 예금금액 출금
+		sqlSession.insert("insertMoney", params);
+		// 알람추가
+		sqlSession.insert("newAlarm", params);
 	}
 }
