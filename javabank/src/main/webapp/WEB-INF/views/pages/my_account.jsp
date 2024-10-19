@@ -72,7 +72,7 @@
             <p class="account_tit">적금</p>
             <ul>
 			    <c:forEach var="savingAccount" items="${savingAccountList}">
-                <li class="account_item bg_green">
+                <li class="account_item bg_blue">
                     <div class="txt_box">
                         <p class="account_name">${savingAccount.category}</p>
                         <p class="account_number">${savingAccount.productAccount}</p>

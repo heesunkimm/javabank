@@ -51,21 +51,20 @@
                        	</p>
 	                </div>
 	                <div class="btn_box">
-	                    <button type="button">조회</button>
-	                    <button type="button">이체</button>
+	                    <button type="button" onclick="location.href='account_list?productAccount=${deposit.productAccount}'">조회</button>
+	                    <!-- <button type="button">이체</button> -->
 	                </div>
 	            </li>
 			    </c:forEach>
             </ul>
         </div>
 		</c:if>
-
         <c:if test="${not empty savingAccountList}">
         <div class="account_box">
             <p class="account_tit">적금</p>
             <ul>
 			    <c:forEach var="savingAccount" items="${savingAccountList}">
-                <li class="account_item bg_green">
+                <li class="account_item bg_blue">
                     <div class="txt_box">
                         <p class="account_name">${savingAccount.category}</p>
                         <p class="account_number">${savingAccount.productAccount}</p>
@@ -75,7 +74,7 @@
                     </div>
                     <div class="btn_box">
                         <button type="button">조회</button>
-                        <button type="button">이체</button>
+                        <!-- <button type="button">이체</button> -->
                     </div>
                 </li>
 			    </c:forEach>

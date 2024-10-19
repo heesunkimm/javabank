@@ -182,8 +182,9 @@ footer p {margin-top: 16px; font-size: 14px; text-align: center; color: #666;}
 .add_bank form .passwd_box .passwd_noti {position: absolute; right: -12%; bottom: 11%; font-size: 12px;}
 .add_bank form div input, 
 .add_bank form div select {padding: 4px 10px; font-size: 16px;}
+.add_bank form .deposit_noti {padding: 0 20px; font-size: 15px;}
 
-.add_bank form .btn_box {text-align: center;}
+.add_bank form .btn_box {margin-top: 20px; text-align: center;}
 .add_bank form .btn_box button {border: 1px solid #555; border-radius: 4px; padding: 4px 10px; font-size: 18px; color: #555;}
 .add_bank form .btn_box button:hover {background-color: #ffe402;}
 
@@ -358,7 +359,9 @@ footer p {margin-top: 16px; font-size: 14px; text-align: center; color: #666;}
     .add_bank form .passwd_box .passwd_noti {font-size: 0.8333vw;}
     .add_bank form div input, 
     .add_bank form div select {padding: 0.2778vw 0.6944vw; font-size: 1.1111vw;}
+    .add_bank form .deposit_noti {padding: 0 1.3889vw; font-size: 1.0417vw;}
 
+	.add_bank form .btn_box {margin-top: 1.3889vw;}
     .add_bank form .btn_box button {border: 0.0694vw solid #555; border-radius: 0.2778vw; padding: 0.2778vw 0.6944vw; font-size: 1.2500vw;}
 
     /* alarms */
