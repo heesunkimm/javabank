@@ -119,7 +119,6 @@
 		// 비밀번호 정규표현식 변환
 		$("input[name='userPw'], input[name='userPw2']").keyup(function() {
 			let pw = $(this).val().replace(/[^a-zA-Z0-9]/g, '');
-		
 	        $(this).val(pw);
 		});
 		

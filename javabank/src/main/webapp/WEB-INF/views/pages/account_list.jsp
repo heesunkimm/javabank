@@ -5,7 +5,6 @@
 <jsp:include page="index_top.jsp"/>
 <!-- s: content -->
     <section id="account_list" class="content">
-    	
         <div class="info_box bg_yellow">
 	            <div class="txt_box">
 	                <p class="account_name">${accountInfo.category}</p>
@@ -18,7 +17,6 @@
 	                <button type="button" onclick="location.href='transfer?depositAccount=${accountInfo.depositAccount}'">이체</button>
 	            </div>
         </div>
-
         <div class="account_details">
             <div class="toolbar">
                 <select name="period">

@@ -65,12 +65,20 @@
 	    $('.addBtn').on("click", function() {
 	        let intAccountLimit = $("input[name='transactionLimit']").val();
 	        let accountLimit = parseInt(intAccountLimit.replace(/,/g, '')); // 쉼표 제거
-	        
-	        
+	        let accountPw = $("input[name='depositPw']").val();
+			let accountPw2 = $("input[name='depositPw02']").val();
+			
 	        // 비밀번호 체크
-	        if ($("input[type='password']").val().trim() === "") {
+	        if ($accountPw.trim() === "" || accountPw2.trim() === "") {
 	            return alert("개설할 입출금계좌의 비밀번호를 입력해주세요.");
-	        } else if (accountLimit > 1000000) {
+	        }else if(accountLimit === "") {
+	        	alert("예금 금액을 설정해주세요.");
+	        }else if(accountPw != accountPw2) {
+				alert("비밀번호가 서로 일치하지 않습니다.");
+				accountPw.focus();
+			}else if(accountPw.length < 4 || accountPw2.length < 4) {
+				alert("비밀번호는 4자리의 숫자로 설정해주세요.");
+			}else if (accountLimit > 1000000) {
 	            return alert("일일 이체한도는 최대 100만원까지 설정할 수 있습니다.");
 	        }
 	        
