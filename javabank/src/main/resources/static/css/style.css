@@ -189,6 +189,7 @@ footer p {margin-top: 16px; font-size: 14px; text-align: center; color: #666;}
 .add_bank form .btn_box button:hover {background-color: #ffe402;}
 
 /* alarms */
+#alarms .alarm_list li.nolist {text-align: center;}
 #alarms .alarm_list li + li {border-top: 1px solid #ccc;}
 #alarms .alarm_list .alarm_items {display: flex; align-items: flex-start; gap: 20px; padding: 10px 20px;}
 #alarms .alarm_list .alarm_items .img_box {width: 40px;}

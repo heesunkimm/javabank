@@ -69,6 +69,7 @@
 		// 숫자 정규표현식 변환
 	    $("input[type='password'], input[type='text']").keyup(function() {
 	        let value = $(this).val().replace(/[^0-9]/g, '');
+
 	        $(this).val(value);
 	    });
 		
@@ -92,6 +93,7 @@
 	    	let accountPw = $("input[name='productPw']").val();
 			let accountPw2 = $("input[name='productPw02']").val();
 			let accountBalance = $("select[name='depositAccount'] option:selected").data("balance");
+			let formattedBalance = accountBalance.toLocaleString();
 			
 			if(accountPw === '' || accountPw2 ==='') {
 				return alert("개설할 정기예금의 비밀번호를 입력해주세요.");
@@ -102,11 +104,11 @@
 			}else if(accountPw.length < 4 || accountPw2.length < 4) {
 				return alert("비밀번호는 4자리의 숫자로 설정해주세요.");
 			}else if(payment === 0 || payment < 0 || payment < 500000) {
-				alert("예금가능한 금액은 최소 50만원 이상 입니다.");
+				return alert("예금가능한 금액은 최소 50만원 이상 입니다.");
 			}else if(payment > 50000000) {
 				return alert("예금 금액은 최대 5,000만원입니다.");
 			}else if(payment > accountBalance) {
-				return alert ("출금계좌의 잔액이 부족합니다.\n출금계좌 잔액: " + accountBalance + "원");
+				return alert ("출금계좌의 잔액이 부족합니다.\n출금계좌 잔액: " + formattedBalance + "원");
 			}
 			
 			$("form[name='addDepositForm']").submit();

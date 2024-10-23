@@ -51,7 +51,7 @@
                        	</p>
 	                </div>
 	                <div class="btn_box">
-	                    <button type="button" onclick="location.href='account_list?productAccount=${deposit.productAccount}'">조회</button>
+	                    <button type="button" onclick="location.href='product_list?productAccount=${deposit.productAccount}'">조회</button>
 	                </div>
 	            </li>
 			    </c:forEach>
@@ -72,7 +72,7 @@
                        	</p>
                     </div>
                     <div class="btn_box">
-                        <button type="button">조회</button>
+                        <button type="button" onclick="location.href='product_list?productAccount=${savingAccount.productAccount}'">조회</button>
                     </div>
                 </li>
 			    </c:forEach>

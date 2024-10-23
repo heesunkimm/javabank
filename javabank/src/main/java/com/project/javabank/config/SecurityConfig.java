@@ -32,7 +32,7 @@ public class SecurityConfig {
 					.dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
 					.requestMatchers("/css/**", "/images/**", "/js/**").permitAll()
 					.requestMatchers("/", "/login", "/join", "/joinProcess", "/logout", "/findId", "/findPw", 
-							"/mailCheck.ajax", "/sendEmail.ajax", "/codeCheck.ajax", "/idCheck.ajax", "/accountCheck.ajax").permitAll()
+							"/mailCheck.ajax", "/sendEmail.ajax", "/codeCheck.ajax", "/idCheck.ajax", "/accountCheck.ajax", "conversionMainAccount.ajax").permitAll()
 					.anyRequest().authenticated()
 			)
 			.formLogin(form -> form					
