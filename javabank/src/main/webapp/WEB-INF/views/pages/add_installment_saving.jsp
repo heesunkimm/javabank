@@ -103,6 +103,7 @@
 	    	let accountPw = $("input[name='productPw']").val();
 			let accountPw2 = $("input[name='productPw02']").val();
 			let accountBalance = $("select[name='depositAccount'] option:selected").data("balance");
+			let formattedBalance = accountBalance.toLocaleString();
 			
 			if(accountPw === '' || accountPw2 ==='') {
 				return alert("개설할 정기적금의 비밀번호를 입력해주세요.");
@@ -113,11 +114,11 @@
 			}else if(accountPw.length < 4 || accountPw2.length < 4) {
 				return alert("비밀번호는 4자리의 숫자로 설정해주세요.");
 			}else if(payment == 0 || payment < 0 || payment < 10000) {
-				aelrt("월 납부금액은 최소 1만원 이상으로 설정해주세요.");
+				return aelrt("월 납부금액은 최소 1만원 이상으로 설정해주세요.");
 			}else if(payment > 1000000) {
 				return alert("월 납부금액은 최대 100만원입니다.");
 			}else if(payment > accountBalance) {
-				return alert ("출금계좌의 잔액이 부족합니다.\n출금계좌 잔액: " + accountBalance + "원");
+				return alert ("출금계좌의 잔액이 부족합니다.\n출금계좌 잔액: " + formattedBalance + "원");
 			}
 			
 			$("form[name='productForm']").submit();

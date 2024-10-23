@@ -20,10 +20,16 @@
                 </c:if>
                 <c:forEach var="account" items="${accountList}">
                 <li class="account_item bg_yellow">
-                    <!-- 주거래: star.png / 주거래X: star_line.png -->
                     <div class="img_box">
-	                    <a class="changeBtn" href="javascript:;" data-deposit="" data-main="${account.mainAccount}">
-	                        <img src="../../images/icons/star_line.png">
+	                    <a class="changeBtn" href="javascript:;" data-deposit="${account.depositAccount}" data-main="${account.mainAccount}">
+               			<c:choose>
+		                   	<c:when test="${account.mainAccount eq 'Y'}">
+		                   		<img src="../../images/icons/star.png">
+		                   	</c:when>
+		                   	<c:otherwise>
+		                   		<img src="../../images/icons/star_line.png">
+		                   	</c:otherwise>
+	                   	</c:choose>
 	                    </a>
                     </div>
                     <div class="txt_box">
@@ -35,8 +41,8 @@
                     </div>
                     <div class="btn_box">
                         <button type="button" onclick="location.href='account_list?depositAccount=${account.depositAccount}'">조회</button>
-                        <button type="button">이체</button>
-                        <button type="button">계좌삭제</button>
+                        <button type="button" onclick="location.href='transfer?depositAccount=${account.depositAccount}'">이체</button>
+                        <button type="button" onclick="location.href='account_delete?depositAccount=${account.depositAccount}'">계좌삭제</button>
                     </div>
                 </li>
                 </c:forEach>
@@ -57,9 +63,8 @@
                     	</p>
 	                </div>
 	                <div class="btn_box">
-	                    <button type="button">조회</button>
-	                    <button type="button">이체</button>
-	                    <button type="button">계좌삭제</button>
+	                    <button type="button" onclick="location.href='product_list?productAccount=${deposit.productAccount}'">조회</button>
+	                    <button type="button" onclick="location.href='product_delete?productAccount=${deposit.productAccount}'">계좌삭제</button>
 	                </div>
 	            </li>
 			    </c:forEach>
@@ -81,9 +86,8 @@
                         </p>
                     </div>
                     <div class="btn_box">
-                        <button type="button">조회</button>
-                        <button type="button">이체</button>
-                        <button type="button">계좌삭제</button>
+                        <button type="button" onclick="location.href='product_list?productAccount=${savingAccount.productAccount}'">조회</button>
+                        <button type="button" onclick="location.href='product_delete?productAccount=${savingAccount.productAccount}'">계좌삭제</button>
                     </div>
                 </li>
 			    </c:forEach>
@@ -99,23 +103,31 @@
 		
 		$(".changeBtn").on("click", function() {
 			let btn = $(this);
-			let mainAccount = $(this).data("main");
-			console.log(mainAccount);
+			let depositAccount = $(this).data("deposit");
 			
 			$.ajax({
 				url: "conversionMainAccount.ajax",
 				type: "post",
-				header: {"X-CSRF-TOKEN": csrfToken}, 
-				data: {
-					depositAccount: "",
-					mainAccount : mainAccount
-				},
+				headers: {"X-CSRF-TOKEN": csrfToken}, 
+				data: {depositAccount: depositAccount},
 				success: function(res){
-					
+					if (res === "OK") {
+	                    alert("주거래 계좌가 변경되었습니다.");
+	                    location.reload();
+	                } else {
+	                    alert("주거래 계좌 변경에 실패했습니다.");
+	                }
 				},error: function(err){
-					console.log(res);
+					console.log(err);
 				}
 			});
 		});
+		
+		// msg가 존재하는 경우 alert
+		let msg = "${msg}";
+		console.log(msg);
+		if (msg && msg.trim() !== "") {
+		    alert(msg);
+		}
 	});
 </script>
