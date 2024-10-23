@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.project.javabank.dto.AccountDTO;
+import com.project.javabank.dto.AlarmDTO;
 import com.project.javabank.dto.DtransactionDTO;
 import com.project.javabank.dto.ProductDTO;
 import com.project.javabank.dto.UserDTO;
@@ -71,6 +72,11 @@ public class JavaBankController {
 	    model.addAttribute("savingAccountList", savingAccountList);
 	    return "pages/index";
 	}
+	// 읽지않은 알람 체크
+//	@Scheduled(cron = "0 0 0 5 * *")
+//	public void alarmCheck() {
+//		
+//	}
 	
 	// 입출금계좌 개설 페이지
 	@GetMapping("/add_account")
@@ -296,26 +302,6 @@ public class JavaBankController {
 		return "redirect:/index";
 	}
 	
-	// 내계좌 모아보기
-	@GetMapping("my_account")
-	public String myAccount(@AuthenticationPrincipal User user, Model model) {
-		// 로그인 유저의 입출금 계좌리스트
-	    List<AccountDTO> accountlist = mapper.loginUserAccount(user.getUsername());
-	    // 로그인 유저의 예적금 계좌리스트
-	    List<ProductDTO> pdtlist = mapper.loginUserProduct(user.getUsername());
-
-	    model.addAttribute("accountList", accountlist);
-	    
-	    for (ProductDTO pdto : pdtlist) {
-	    	if(pdto.getCategory().equals("정기예금")) {
-	    	    model.addAttribute("depositList", pdtlist);
-	    	}else if (pdto.getCategory().equals("정기적금")) {
-	    		model.addAttribute("savingAccountList", pdtlist);
-	    	}
-	    }
-		return "pages/my_account";
-	}
-	
 	// 입출금 계좌 이자 스케줄링
 	@Scheduled(cron = "0 0 0 1 * *")
 	public void AccountScheduled() {
@@ -406,7 +392,7 @@ public class JavaBankController {
         String str[] = productAccount.split("-");
         String lastAccount = str[str.length -1];
   	    double interestRate = dto.getInterestRate();
-  	    
+
  		Map<String, Object> params = new HashMap<>();
  		// 상품계좌 생성 파라미터
  		params.put("productAccount", productAccount);
@@ -458,8 +444,10 @@ public class JavaBankController {
 		
   	    // 정기예금 개설
 		try {
-			mapper.addProduct(params);
-	        redirectAttributes.addFlashAttribute("msg", "정기예금이 개설되었습니다.");
+			if(dto.getPayment() >= 500000) {
+				mapper.addProduct(params);
+				redirectAttributes.addFlashAttribute("msg", "정기예금이 개설되었습니다.");
+			}
 	    } catch(Exception e) {
 	        redirectAttributes.addFlashAttribute("msg", "정기예금 개설에 실패하였습니다.");
 	    }
@@ -584,17 +572,116 @@ public class JavaBankController {
 		return "redirect:/index";
 	}
 	
-	// 정기적금 이자 스케줄링
-//	@Scheduled(cron = "0 0 0 5 * *") {
+	// 예적금계좌 상세 페이지
+	@GetMapping("product_list")
+	public String productList(@AuthenticationPrincipal User user, Model model, @RequestParam("productAccount") String productAccount) {
+		Map<String, Object> params = new HashMap<>();
+		params.put("userId",user.getUsername());
+		params.put("productAccount", productAccount);
+		
+		// 선택한 계좌의 상세 정보
+		ProductDTO productInfo = mapper.loginUserProductInfo(params);
+		model.addAttribute("productInfo", productInfo);
+		
+	    // 로그인 유저의 입출금 계좌리스트
+		List<ProductDTO> productList = mapper.productList(params);
+	    model.addAttribute("productList", productList);
+	    
+		return "pages/product_list";
+	}
+	
+	// 정기적금 입금 스케줄링
+//	@Scheduled(cron = "0 0 0 5 * *")
+////	@Scheduled(cron = "*/5 * * * * *")
+//	public void insertMonthlyPayment05() {
+//		// 자동이체일체크
+//		List<ProductDTO> productList = mapper.autoTransferDateCheck(5);
+//		
+//		for(ProductDTO account : productList) {
+//			Map<String, Object> params = new HashMap<>();
+//			// 예적금입금
+//			params.put("productAccount", account.getProductAccount());
+//			params.put("ptype", "입금");
+//			params.put("pmemo", "");
+//			params.put("deltaAmount", account.getMonthlyPayment());
+//			params.put("pbalance", account.getBalance() + account.getMonthlyPayment());
+//			
+//		    // 입출금계좌에서 예금금액 출금
+//		    params.put("depositAccount", account.getProductAccount());
+//		    params.put("userId", account.getUserId());
+//		    params.put("type", "출금");
+//		    params.put("memo", "정기적금 입금");
+//		    params.put("balance", account.getBalance() - account.getMonthlyPayment());
+//
+//		    // 알람추가
+//		    params.put("alarmCate", "예적금");
+//		    params.put("alarmCont", "정기적금 입금이 완료되었습니다.");
+//			
+//			mapper.insertInterest(params);
+//		}
 //	}
-//	@Scheduled(cron = "0 0 0 10 * *") {
+	
+//	@Scheduled(cron = "0 0 0 10 * *")
+//	public void insertMonthlyPayment10() {
 //	}
-//	@Scheduled(cron = "0 0 0 25 * *") {
+	
+//	@Scheduled(cron = "0 0 0 25 * *")
+//	public void insertMonthlyPayment25() {
 //	}
 	
 	// 알림 페이지
 	@GetMapping("alarm")
-	public String Alarm() {
+	public String Alarm(@AuthenticationPrincipal User user, Model model) {
+		// 알람리스트 조회
+		List<AlarmDTO> alarmList = mapper.alarmList(user.getUsername());
+		model.addAttribute("alarmList", alarmList);
 		return "pages/alarm";
+	}
+	
+	// 내계좌 모아보기
+	@GetMapping("my_account")
+	public String myAccount(@AuthenticationPrincipal User user, Model model) {
+		// 로그인 유저의 입출금 계좌리스트
+	    List<AccountDTO> accountlist = mapper.loginUserAccount(user.getUsername());
+	    // 로그인 유저의 예적금 계좌리스트
+	    List<ProductDTO> pdtlist = mapper.loginUserProduct(user.getUsername());
+
+	    model.addAttribute("accountList", accountlist);
+	    
+	    for (ProductDTO pdto : pdtlist) {
+	    	if(pdto.getCategory().equals("정기예금")) {
+	    	    model.addAttribute("depositList", pdtlist);
+	    	}else if (pdto.getCategory().equals("정기적금")) {
+	    		model.addAttribute("savingAccountList", pdtlist);
+	    	}
+	    }
+		return "pages/my_account";
+	}
+	
+	// 입출금계좌 삭제
+//	@PostMapping("account_delete")
+//	public String accountDelete(@AuthenticationPrincipal User user, RedirectAttributes redirectAttributes, @RequestParam("depositAccount") String depositAccount) {
+//		// 계좌삭제 전 메인계좌, 잔액 체크
+//		AccountDTO AccountDelCheck = mapper.AccountDelCheck(depositAccount);
+//		if(AccountDelCheck.getMainAccount().equals("Y")) {
+//			redirectAttributes.addFlashAttribute("msg", "주거래계좌는 삭제할 수 없습니다.");
+//		}else if(AccountDelCheck.getBalance() != 0) {
+//			redirectAttributes.addFlashAttribute("msg", "잔액이 남아있는 계좌는 삭제할 수 없습니다.");
+//		}
+//		
+//		return "redirect:my_account";
+//	}
+	
+	// 주거래계좌 상태변경
+	@ResponseBody
+	@PostMapping("conversionMainAccount.ajax")
+	public String conversionMainAccount(@AuthenticationPrincipal User user, @RequestParam("depositAccount") String depositAccount) {
+		// 주거례계좌 유무 확인
+		try {
+			mapper.conversionMainAccount(user.getUsername(), depositAccount);
+			return "OK";
+		}catch(Exception e) {
+			return "FALSE";
+		}
 	}
 }

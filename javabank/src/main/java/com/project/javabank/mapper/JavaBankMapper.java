@@ -1,5 +1,7 @@
 package com.project.javabank.mapper;
 
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -9,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.project.javabank.dto.AccountDTO;
+import com.project.javabank.dto.AlarmDTO;
 import com.project.javabank.dto.DtransactionDTO;
 import com.project.javabank.dto.ProductDTO;
 import com.project.javabank.dto.UserDTO;
@@ -30,6 +33,10 @@ public class JavaBankMapper {
 	// 로그인 유저의 계좌 정보조회
 	public AccountDTO loginUserAccountInfo(Map<String, Object> params) {
 		return sqlSession.selectOne("loginUserAccountInfo", params);
+	}
+	// 로그인 유저의 예적금 정보조회
+	public ProductDTO loginUserProductInfo(Map<String, Object> params) {
+		return sqlSession.selectOne("loginUserProductInfo", params);
 	}
 	// 로그인 유저의 예적금 계좌리스트
 	public List<ProductDTO> loginUserProduct(String userId) {
@@ -61,6 +68,10 @@ public class JavaBankMapper {
 	public List<AccountDTO> accountList(Map<String, Object> params) {
 		return sqlSession.selectList("accountList", params);
 	}
+	// 예적금계좌 조회
+	public List<ProductDTO> productList(Map<String, Object> params) {
+		return sqlSession.selectList("productList", params);
+	}
 	// 로그인 유저의 최근 입출금거래 계좌리스트
 //	public List<DtransactionDTO> recentlyAccountList(String depositAccount) {
 //		return sqlSession.selectList("recentlyAccountList", depositAccount);
@@ -91,7 +102,7 @@ public class JavaBankMapper {
 	}
 	// 입출금계좌 생성 및 최초 거래내역 0원으로 생성
 	@Transactional
-	public void addProduct (Map<String, Object> params) {
+	public void addProduct(Map<String, Object> params) {
 		// 상품 추가
 		sqlSession.insert("addProduct", params);
 		// 첫거래 내역 추가
@@ -101,4 +112,48 @@ public class JavaBankMapper {
 		// 알람추가
 		sqlSession.insert("newAlarm", params);
 	}
+	// 알람리스트 조회
+	public List<AlarmDTO> alarmList(String userId) {
+		return sqlSession.selectList("alarmList", userId);
+	}
+	// 읽지않은 알람 갯수 체크
+	public int alarmCheck(String userId) {
+		return sqlSession.selectOne("alarmCheck", userId);
+	}
+	// 알림 읽음상태 변경
+	public int alarmStatusUpdate(String userId) {
+		return sqlSession.update("alarmStatusUpdate", userId);
+	}
+	@Transactional
+	public void conversionMainAccount(String userId, String depositAccount) {
+	    // 기존 주거래 계좌 상태 변경
+	    sqlSession.update("updateMainAccount", userId);
+
+	    // 선택된 계좌를 주거래 계좌로 변경
+	    Map<String, Object> params = new HashMap<>();
+	    params.put("userId", userId);
+	    params.put("depositAccount", depositAccount);
+	    sqlSession.update("updateNewMainAccount", params);
+	}
+	// 자동이체일체크
+	public List<ProductDTO> autoTransferDateCheck(int autoTransferDate) {
+		return sqlSession.selectList("autoTransferDateCheck", autoTransferDate);
+	}
+	@Transactional
+	public void insertInterest(Map<String, Object> params) {
+		// 예적금입금
+		sqlSession.insert("insertInterest", params);
+		// 입출금계좌에서 예금금액 출금
+		sqlSession.insert("insertMoney", params);
+		// 알람추가
+		sqlSession.insert("newAlarm", params);
+	}
+	// 계좌삭제 전 메인계좌, 잔액 체크
+//	public AccountDTO AccountDelCheck(String depositAccount) {
+//		return sqlSession.selectOne("AccountDelCheck", depositAccount);
+//	}
+//	// 입출금계좌 삭제
+//	public int accountDelete(String depositAccount) {
+//		return sqlSession.delete("accountDelete", depositAccount);
+//	}
 }

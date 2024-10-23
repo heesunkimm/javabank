@@ -38,6 +38,17 @@
 		) sub
 		where rn = 1
 	</select>
+	<!-- 로그인 유저의 상품 상세정보조회 -->
+	<select id="loginUserProductInfo" parameterType="java.util.Map" resultType="ProductDTO">
+		select * 
+		from (
+		select a.productAccount, a.category, t.balance, row_number() over (order by t.updateDate desc) as rn
+		from JB_PRODUCT a 
+		inner join JB_Ptransaction t on a.productAccount = t.productAccount 
+		where a.productAccount = #{productAccount} and a.userId = #{userId}
+		) sub
+		where rn = 1
+	</select>
 	<!-- 로그인 유저의 예적금 계좌리스트 -->
 	<select id="loginUserProduct" parameterType="String" resultType="ProductDTO">
 		select productAccount, category, balance
@@ -83,6 +94,15 @@
 		left join JB_USER u2 on d2.userId = u2.userId
 		where a.depositAccount = #{depositAccount} and a.userId = #{userId}
 		order by t.updateDate desc
+	</select>
+	<!-- 예적금 거래내역 조회 -->
+	<select id="productList" parameterType="java.util.Map" resultType="ProductDTO">
+	    select p.*, t.updateDate, t.deltaAmount, t.type, t.balance, t.productAccount, u.userName AS recipientUserId 
+	    from JB_PRODUCT p
+	    inner join JB_USER u on p.userId = u.userId
+	    inner join JB_Ptransaction t on p.productAccount = t.productAccount
+	    where p.productAccount = #{productAccount} and p.userId = #{userId}
+	    order by t.updateDate desc
 	</select>
 	<!-- 로그인 유저의 최근 입출금거래 계좌리스트 -->
 	<!-- <select id="recentlyAccountList" parameterType="String" resultType="DtransactionDTO">
@@ -137,4 +157,52 @@
     <insert id="newAlarm" parameterType="java.util.Map">
     	insert into JB_ALARM (alarmSeq, userId, alarmCate, alarmCont) values (alarmSeq.nextval, #{userId}, #{alarmCate}, #{alarmCont})
     </insert>
+    <!-- 알림리스트 조회 -->
+    <select id="alarmList" parameterType="String" resultType="AlarmDTO">
+    	select * from JB_ALARM where userId = #{userId} order by alarmRegDate desc
+    </select>
+    <!-- 읽지않은 알람 갯수 체크 -->
+    <select id="alarmCheck" parameterType="String" resultType="int">
+    	select count(*) from JB_ALARM where userId = #{userId} and alarmIsRead = 'N'
+    </select>
+    <!-- 알림 읽음상태 변경 -->
+    <update id="alarmStatusUpdate" parameterType="String" >
+    	update JB_ALARM set alarmIsRead = 'Y' where userId = #{userId}
+    </update>
+    <!-- 주거례계좌 유무 확인 -->
+    <update id="updateMainAccount" parameterType="String">
+    	update JB_DEPOSIT set mainAccount = 'N' where userId = #{userId} and mainAccount = 'Y'
+    </update>
+    <!-- 주거례계좌 상태변경 -->
+    <update id="updateNewMainAccount" parameterType="java.util.Map" >
+    	update JB_DEPOSIT set mainAccount = 'Y' where userId = #{userId} and depositAccount = #{depositAccount}
+    </update>
+    <!-- 자동이체일체크 -->
+    <select id="autoTransferDateCheck" parameterType="int" resultType="ProductDTO">
+   		select productAccount, monthlyPayment, interestRate, balance
+	    from (
+	        select a.productAccount, a.monthlyPayment, a.interestRate, t.balance, 
+	               row_number() over (partition by a.productAccount order by t.updateDate desc) AS rn
+	        FROM JB_PRODUCT a 
+	        inner join JB_Ptransaction t on a.productAccount = t.productAccount 
+	        where autoTransferDate = #{autoTransferDate} and productEnable = 'Y' 
+	    ) sub
+	    where rn = 1
+	</select>
+    <!-- 예적금입금 -->
+    <insert id="insertInterest" parameterType="java.util.Map">
+    	insert into JB_Ptransaction (productSeq, productAccount, type, memo, deltaAmount, balance) 
+    	values (productSeq.nextval, #{productAccount}, #{ptype}, #{pmemo}, #{deltaAmount}, #{pbalance})
+    </insert>
+    <!-- 계좌삭제 전 메인계좌, 잔액 체크 -->
+    <!-- <select id="AccountDelCheck" parameterType="String" resultType="AccountDTO">
+	    select a.mainAccount, t.balance 
+	    from JB_DEPOSIT a 
+	    inner join JB_Dtransaction t on a.depositAccount = t.depositAccount 
+	    where a.depositAccount = #{depositAccount} order by t.updateDate desc fetch first 1 row only
+    </select>
+    입출금계좌 삭제
+    <delete id="accountDelete" parameterType="String">
+    	delete from JB_DEPOSIT where depositAccount = #{depositAccount}
+    </delete> -->
 </mapper>
