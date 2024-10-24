@@ -148,6 +148,7 @@ footer p {margin-top: 16px; font-size: 14px; text-align: center; color: #666;}
 #transfer .bank_list > p {margin: 20px 0; font-size: 20px;}
 #transfer .bank_list .account_list {border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;}
 #transfer .bank_list .account_list li + li {border-top: 1px solid #ccc;}
+#transfer .bank_list .account_list li.nolist {padding: 6px 0; text-align: center;}
 #transfer .bank_list .account_list li a {display: flex; gap: 20px; width: 100%; padding: 10px 0;}
 #transfer .bank_list .account_list li .txt_box .account_name {font-size: 18px; color: #222;}
 #transfer .bank_list .account_list li .txt_box .deposit_account {margin-top: 6px; font-size: 16px; color: #434343;}
@@ -331,6 +332,7 @@ footer p {margin-top: 16px; font-size: 14px; text-align: center; color: #666;}
     #transfer .bank_list > p {margin: 1.3889vw 0; font-size: 1.3889vw;}
     #transfer .bank_list .account_list {border-top: 0.0694vw solid #ccc; border-bottom: 0.0694vw solid #ccc;}
     #transfer .bank_list .account_list li + li {border-top: 0.0694vw solid #ccc;}
+    #transfer .bank_list .account_list li.nolist {padding: 0.4167 0vw;}
     #transfer .bank_list .account_list li a {gap: 1.3889vw; padding: 0.6944vw 0;}
     #transfer .bank_list .account_list li .txt_box .account_name {font-size: 1.2500vw;}
     #transfer .bank_list .account_list li .txt_box .deposit_account {margin-top: 0.4167vw; font-size: 1.1111vw;}

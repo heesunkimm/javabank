@@ -42,17 +42,22 @@
             </ul>
             <p>최근 이체</p>
             <ul class="recently_list account_list">
+            <c:if test="${empty recentlyList}">
+            	<li class="nolist">최근 거래된 계좌가 없습니다.</li>
+            </c:if>
+            <c:forEach var="recentlyAccount" items="${recentlyList}">
                 <li>
-                    <a class="accountBtn" href="javascript:;">
+                    <a class="accountBtn" href="javascript:;" data-account="${recentlyAccount.transferAccount}">
                         <div class="img_box">
                             <img src="../../images/icons/passbook.png">
                         </div>
                         <div class="txt_box">
-                            <p class="account_name">홍길동</p>
-                            <p class="deposit_account"><span>은행명</span>0000-0000-0000-0000</p>
+                            <p class="account_name">${recentlyAccount.category}</p>
+                            <p class="deposit_account">${recentlyAccount.transferAccount}</p>
                         </div>
                     </a>
                 </li>
+            </c:forEach>
             </ul>
         </div>
     </section>
