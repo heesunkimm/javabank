@@ -73,9 +73,9 @@ public class JavaBankMapper {
 		return sqlSession.selectList("productList", params);
 	}
 	// 로그인 유저의 최근 입출금거래 계좌리스트
-//	public List<DtransactionDTO> recentlyAccountList(String depositAccount) {
-//		return sqlSession.selectList("recentlyAccountList", depositAccount);
-//	}
+	public List<DtransactionDTO> recentlyAccountList(String depositAccount) {
+		return sqlSession.selectList("recentlyAccountList", depositAccount);
+	}
 	// db에 존재하는 계좌 체크
 	public AccountDTO accountCheck(String transferAccount) {
 	    return sqlSession.selectOne("accountCheck", transferAccount);
@@ -99,6 +99,17 @@ public class JavaBankMapper {
 	// 전체 입출금계좌 조회
 	public List<AccountDTO> AllUserAccount() {
 		return sqlSession.selectList("AllUserAccount");
+	}
+	@Transactional
+	public void depositScheduled(Map<String, Object> params) {
+		// 만기거래내역 추가
+		sqlSession.insert("insertInterest", params);
+		// 만기 예적금 상태 변경
+		sqlSession.update("productStatusUpdate", params);
+		// 정기예금 만기액, 이자 입금
+		sqlSession.insert("insertMoney", params);
+		// 알림추가
+		sqlSession.insert("newAlarm", params);
 	}
 	// 입출금계좌 생성 및 최초 거래내역 0원으로 생성
 	@Transactional
@@ -141,19 +152,51 @@ public class JavaBankMapper {
 	}
 	@Transactional
 	public void insertInterest(Map<String, Object> params) {
-		// 예적금입금
+		// 만기거래내역 추가
 		sqlSession.insert("insertInterest", params);
-		// 입출금계좌에서 예금금액 출금
+		// 만기 예적금 상태 변경
+		sqlSession.update("productStatusUpdate", params);
+		// 정기적금 월입금, 만기시 이자 입금
 		sqlSession.insert("insertMoney", params);
 		// 알람추가
 		sqlSession.insert("newAlarm", params);
 	}
+	@Transactional
+	public void savingAccountScheduled(Map<String, Object> params) {
+		// 정기적금 입금
+		sqlSession.insert("insertInterest", params);
+		// 정기적금 출금
+		sqlSession.insert("insertMoney", params);
+		// 알람추가
+		sqlSession.insert("newAlarm", params);
+		
+	}
+	// 전체 예적금계좌 정보 조회
+	public List<ProductDTO> AllUserProduct() {
+		return sqlSession.selectList("AllUserProduct");
+	}
 	// 계좌삭제 전 메인계좌, 잔액 체크
-//	public AccountDTO AccountDelCheck(String depositAccount) {
-//		return sqlSession.selectOne("AccountDelCheck", depositAccount);
-//	}
-//	// 입출금계좌 삭제
-//	public int accountDelete(String depositAccount) {
-//		return sqlSession.delete("accountDelete", depositAccount);
-//	}
+	public AccountDTO AccountDelCheck(String depositAccount) {
+		return sqlSession.selectOne("AccountDelCheck", depositAccount);
+	}
+	@Transactional
+	public void accountDelete(String depositAccount) {
+		// 입출금 거래내역 삭제
+		sqlSession.delete("accountListDelete", depositAccount);
+		// 입출금계좌 삭제
+		sqlSession.delete("accountDelete", depositAccount);
+	}
+	// 예적금 상품 정보 확인
+	public ProductDTO productCheck(String productAccount) {
+		return sqlSession.selectOne("productCheck", productAccount);
+	}
+	@Transactional
+	public void productDelete(Map<String, Object> params) {
+		// 입출금계좌 거래내역 삭제
+		sqlSession.delete("productListDelete", params);
+		// 예적금계좌 삭제
+		sqlSession.delete("productDelete", params);
+		// 예적금 해지금액 입금
+		sqlSession.insert("insertMoney", params);
+	}
 }

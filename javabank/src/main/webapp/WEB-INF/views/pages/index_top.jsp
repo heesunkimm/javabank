@@ -13,12 +13,13 @@
 </head>
 <body>
     <header>
+    <input class="csrfToken" type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
         <div class="logo_box">
 	        <p><a href="index">java<em>bank</em></a></p>
         </div>
 
         <div class="icon_box">
-        	<a href="alarm">
+        	<a href="alarm" data-read="">
 	            <div class="img_box">
 	                <img src="../../images/icons/alarm.png">
 	            </div>
@@ -35,3 +36,20 @@
             </ul>
         </div>
     </header>
+    <script type="text/javascript">
+    $(document).ready(function() {
+		let csrfToken = $(".csrfToken").val();
+    	
+    	$.ajax({
+    		url: "alarmCheck.ajax",
+    		type: "post",
+    		headers: {"X-CSRF-TOKEN": csrfToken}, 
+    		data: {userId: ${loginId}},
+    		success: function(res){
+    			
+    		},error: function(err){
+    			console.log(err);
+    		}
+    	});
+	});
+    </script>

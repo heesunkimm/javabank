@@ -45,7 +45,7 @@
 		select a.productAccount, a.category, t.balance, row_number() over (order by t.updateDate desc) as rn
 		from JB_PRODUCT a 
 		inner join JB_Ptransaction t on a.productAccount = t.productAccount 
-		where a.productAccount = #{productAccount} and a.userId = #{userId}
+		where a.productAccount = #{productAccount} and a.userId = #{userId} and a.productEnable = 'Y'
 		) sub
 		where rn = 1
 	</select>
@@ -56,7 +56,7 @@
 	        select a.productAccount, a.category, t.balance, row_number() over (partition by a.productAccount order by t.updateDate desc) as rn
 	        from JB_PRODUCT a 
 	        inner join JB_Ptransaction t on a.productAccount = t.productAccount 
-	        where a.userId = #{userId}
+	        where a.userId = #{userId} and a.productEnable = 'Y'
 	    ) sub
 	    where rn = 1
 	</select>
@@ -101,27 +101,26 @@
 	    from JB_PRODUCT p
 	    inner join JB_USER u on p.userId = u.userId
 	    inner join JB_Ptransaction t on p.productAccount = t.productAccount
-	    where p.productAccount = #{productAccount} and p.userId = #{userId}
+	    where p.productAccount = #{productAccount} and p.userId = #{userId} and p.productEnable = 'Y'
 	    order by t.updateDate desc
 	</select>
 	<!-- 로그인 유저의 최근 입출금거래 계좌리스트 -->
-	<!-- <select id="recentlyAccountList" parameterType="String" resultType="DtransactionDTO">
-	    select * 
+	<select id="recentlyAccountList" parameterType="String" resultType="DtransactionDTO">
+	    select userId, category, updateDate, transferAccount
 	    from (
-	        select t.*, row_number() over (partition by transferAccount order by updateDate desc) as rn 
-	        from JB_Dtransaction t 
-	        where depositAccount = #{depositAccount} and transferAccount != #{depositAccount}
-	    ) 
-	    where rn = 1 and rownum <= 7 
-	    order by updateDate desc
-	</select> -->
+	        select a.userId, a.category, t.updateDate, t.transferAccount, row_number() over (partition by t.transferAccount order by t.updateDate desc) as rn 
+	        from JB_DEPOSIT a 
+            inner join JB_Dtransaction t on a.depositAccount = t.depositAccount 
+	        where a.depositAccount = #{depositAccount} and t.transferAccount != #{depositAccount} and t.transferAccount like '0925%'
+	    ) where rn = 1 and rownum &lt;= 7 order by updateDate desc
+	</select>
 	<!-- db에 존재하는 계좌 체크 -->
 	<select id="accountCheck" parameterType="String" resultType="AccountDTO">
 		select * from JB_DEPOSIT where depositAccount = #{transferAccount}
 	</select>
 	<!--  계좌잔액 체크 -->
 	<select id="balanceCheck" parameterType="String" resultType="DtransactionDTO">
-	    select userId, balance from JB_Dtransaction where depositAccount = #{depositAccount} order by updateDate desc fetch first 1 row only
+	    select userId, balance, depositAccount from JB_Dtransaction where depositAccount = #{depositAccount} order by updateDate desc fetch first 1 row only
 	</select>
 	<!-- 비밀번호 일치여부 확인 -->
 	<select id="accountPwCheck" parameterType="java.util.Map" resultType="String">
@@ -179,9 +178,9 @@
     </update>
     <!-- 자동이체일체크 -->
     <select id="autoTransferDateCheck" parameterType="int" resultType="ProductDTO">
-   		select productAccount, monthlyPayment, interestRate, balance
+   		select productAccount, userId, monthlyPayment, expiryDate, interestRate, depositAccount, balance
 	    from (
-	        select a.productAccount, a.monthlyPayment, a.interestRate, t.balance, 
+	        select a.productAccount, a.userId, a.monthlyPayment, a.expiryDate, a.interestRate, a.depositAccount, t.balance, 
 	               row_number() over (partition by a.productAccount order by t.updateDate desc) AS rn
 	        FROM JB_PRODUCT a 
 	        inner join JB_Ptransaction t on a.productAccount = t.productAccount 
@@ -192,17 +191,47 @@
     <!-- 예적금입금 -->
     <insert id="insertInterest" parameterType="java.util.Map">
     	insert into JB_Ptransaction (productSeq, productAccount, type, memo, deltaAmount, balance) 
-    	values (productSeq.nextval, #{productAccount}, #{ptype}, #{pmemo}, #{deltaAmount}, #{pbalance})
+    	values (productSeq.nextval, #{productAccount}, #{ptype}, #{pmemo}, #{pdeltaAmount}, #{pbalance})
     </insert>
+    <!-- 전체 예적금계좌 정보 조회 -->
+    <select id="AllUserProduct" resultType="ProductDTO">
+    	select a.*, t.balance 
+    	from JB_PRODUCT a 
+		left join (select productAccount, balance, row_number() over (partition by productAccount order by updateDate desc) as rn from JB_Ptransaction) t 
+		on a.productAccount = t.productAccount where t.rn = 1 and a.productEnable = 'Y'
+    </select>
+    <!-- 만기 예적금 상태 변경 -->
+    <update id="productStatusUpdate" parameterType="java.util.Map">
+    	update JB_PRODUCT set productEnable = 'N' where productAccount = #{productAccount}
+    </update>
     <!-- 계좌삭제 전 메인계좌, 잔액 체크 -->
-    <!-- <select id="AccountDelCheck" parameterType="String" resultType="AccountDTO">
+    <select id="AccountDelCheck" parameterType="String" resultType="AccountDTO">
 	    select a.mainAccount, t.balance 
 	    from JB_DEPOSIT a 
 	    inner join JB_Dtransaction t on a.depositAccount = t.depositAccount 
-	    where a.depositAccount = #{depositAccount} order by t.updateDate desc fetch first 1 row only
+	    where a.depositAccount = #{depositAccount} and rownum = 1 order by t.updateDate desc
     </select>
-    입출금계좌 삭제
+    <!-- 입출금계좌 삭제 -->
     <delete id="accountDelete" parameterType="String">
     	delete from JB_DEPOSIT where depositAccount = #{depositAccount}
-    </delete> -->
+    </delete>
+    <!-- 입출금계좌 거래내역 삭제 -->
+    <delete id="accountListDelete" parameterType="String">
+    	delete from JB_Dtransaction where depositAccount = #{depositAccount}
+    </delete>
+    <!-- 예적금 상품 정보 확인 -->
+    <select id="productCheck" parameterType="String" resultType="ProductDTO">
+    	select a.*, t.balance
+    	from JB_PRODUCT a 
+    	inner join JB_Ptransaction t on a.productAccount = t.productAccount 
+    	where a.productAccount = #{productAccount} and a.productEnable = 'Y' and rownum = 1 order by t.productAccount desc
+    </select>
+    <!-- 예적금계좌 삭제 -->
+    <delete id="productDelete" parameterType="java.util.Map">
+    	delete from JB_PRODUCT where productAccount = #{productAccount}
+    </delete>
+    <!-- 예적금계좌 거래내역 삭제 -->
+    <delete id="productListDelete" parameterType="java.util.Map">
+    	delete from JB_Ptransaction where productAccount = #{productAccount}
+    </delete>
 </mapper>

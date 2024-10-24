@@ -72,10 +72,20 @@ public class JavaBankController {
 	    model.addAttribute("savingAccountList", savingAccountList);
 	    return "pages/index";
 	}
-	// 읽지않은 알람 체크
-//	@Scheduled(cron = "0 0 0 5 * *")
-//	public void alarmCheck() {
-//		
+	// 읽지않은 알람
+//	@ResponseBody
+//	@PostMapping("alarmCheck.ajax")
+//	public String alarmCheck(@AuthenticationPrincipal User user, Model model, @RequestParam("alarmIsRead") String alarmIsRead) {
+//		// 로그인 정보 꺼내기
+//	    model.addAttribute("loginId", user.getUsername());
+//	    
+//	    int res = mapper.alarmCheck(user.getUsername());
+//	    if(res > 0) {
+//	    	mapper.alarmStatusUpdate(user.getUsername());
+//	    	return "";
+//	    }else {
+//	    	return "";
+//	    }
 //	}
 	
 	// 입출금계좌 개설 페이지
@@ -185,10 +195,6 @@ public class JavaBankController {
 	    model.addAttribute("accountList", accountList);
 	    model.addAttribute("depositAccount", depositAccount);
 	    
-	    // 로그인 유저의 최근 입출금거래 계좌리스트
-//	    List<DtransactionDTO> recentlyList = mapper.recentlyAccountList(depositAccount);
-//	    model.addAttribute("recentlyList", recentlyList);
-	    
 		return "pages/account_list";
 	}
 	
@@ -196,11 +202,14 @@ public class JavaBankController {
 	@GetMapping("transfer")
 	public String transfer(@AuthenticationPrincipal User user, Model model, @RequestParam("depositAccount") String depositAccount) {
 		model.addAttribute("depositAccount", depositAccount);
+
 		// 로그인 유저의 입출금 계좌리스트
 	    List<AccountDTO> accountlist = mapper.loginUserAccount(user.getUsername());
 	    model.addAttribute("accountlist", accountlist);
 	    
 	    // 로그인 유저의 최근 입출금거래 계좌리스트
+	    List<DtransactionDTO> recentlyList = mapper.recentlyAccountList(depositAccount);
+    	model.addAttribute("recentlyList", recentlyList);
 	    
 		return "pages/transfer";
 	}
@@ -590,44 +599,281 @@ public class JavaBankController {
 		return "pages/product_list";
 	}
 	
-	// 정기적금 입금 스케줄링
-//	@Scheduled(cron = "0 0 0 5 * *")
-////	@Scheduled(cron = "*/5 * * * * *")
-//	public void insertMonthlyPayment05() {
-//		// 자동이체일체크
-//		List<ProductDTO> productList = mapper.autoTransferDateCheck(5);
-//		
-//		for(ProductDTO account : productList) {
-//			Map<String, Object> params = new HashMap<>();
-//			// 예적금입금
-//			params.put("productAccount", account.getProductAccount());
-//			params.put("ptype", "입금");
-//			params.put("pmemo", "");
-//			params.put("deltaAmount", account.getMonthlyPayment());
-//			params.put("pbalance", account.getBalance() + account.getMonthlyPayment());
-//			
-//		    // 입출금계좌에서 예금금액 출금
-//		    params.put("depositAccount", account.getProductAccount());
-//		    params.put("userId", account.getUserId());
-//		    params.put("type", "출금");
-//		    params.put("memo", "정기적금 입금");
-//		    params.put("balance", account.getBalance() - account.getMonthlyPayment());
-//
-//		    // 알람추가
-//		    params.put("alarmCate", "예적금");
-//		    params.put("alarmCont", "정기적금 입금이 완료되었습니다.");
-//			
-//			mapper.insertInterest(params);
-//		}
-//	}
+	// 정기예금 만기 및 이자 스케줄링
+	@Scheduled(cron = "0 0 0 * * *")
+	public void depositScheduled() {
+		// 전체 예적금계좌 정보 조회
+		List<ProductDTO> AllUserProduct = mapper.AllUserProduct();
+		
+		// 오늘날짜
+  	    LocalDateTime currentTime = LocalDateTime.now();
+  	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+  	    String Today = currentTime.format(formatter);
+
+  	    for (ProductDTO account : AllUserProduct) {
+  	    	// 만기일
+			String expireDate = account.getExpiryDate().substring(0, 10);
+			int finalInterestRate =  (int) (account.getBalance() * account.getInterestRate());
+			int finalBalance = account.getBalance() + finalInterestRate;
+			// 계좌 잔액 체크
+			DtransactionDTO balanceCheck = mapper.balanceCheck(account.getDepositAccount());
+			
+			// 정기예금 계좌 마지막 4자리수 꺼내기
+			String productAccount = account.getProductAccount();
+	        String str[] = productAccount.split("-");
+	        String lastAccount = str[str.length -1];
+	        
+			Map<String, Object> params = new HashMap<>();
+			// 만기거래내역 추가
+			params.put("productAccount", account.getProductAccount());
+			params.put("ptype", "이자입금");
+			params.put("pmemo", "");
+			params.put("pdeltaAmount", finalInterestRate);
+			params.put("pbalance", finalBalance);
+			
+			// 정기예금 만기액, 이자 입금 파라미터
+			params.put("depositAccount", balanceCheck.getDepositAccount());
+			params.put("userId", account.getUserId());
+			params.put("type", "정기예금만기");
+			params.put("memo", "");
+			params.put("deltaAmount", finalBalance);
+			params.put("balance", balanceCheck.getBalance() + finalBalance);
+			params.put("transferAccount", account.getDepositAccount());
+			
+			// 알림추가 파라미터
+			params.put("userId", account.getUserId());
+			params.put("alarmCate", "정기예금만기");
+			params.put("alarmCont", "정기예금[" + lastAccount + "] 만기되었습니다.");
+			
+			// 오늘이 만기일인 경우
+			if(Today.equals(expireDate)) {
+				mapper.depositScheduled(params);
+			}
+		}
+	}
 	
-//	@Scheduled(cron = "0 0 0 10 * *")
-//	public void insertMonthlyPayment10() {
-//	}
-	
-//	@Scheduled(cron = "0 0 0 25 * *")
-//	public void insertMonthlyPayment25() {
-//	}
+	// 정기적금 입금 스케줄링 (매달 5일)
+	@Scheduled(cron = "0 0 0 5 * *")
+	public void insertMonthlyPayment05() {
+		// 자동이체일체크
+		List<ProductDTO> productList = mapper.autoTransferDateCheck(5);
+
+		// 오늘날짜
+  	    LocalDateTime currentTime = LocalDateTime.now();
+  	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+  	    String Today = currentTime.format(formatter);
+		
+		for(ProductDTO account : productList) {
+			// 만기일
+			String expireDate = account.getExpiryDate().substring(0, 10);
+			int finalDeltaAmonut = account.getMonthlyPayment() + (int) (account.getBalance() * account.getInterestRate());
+			int finalBalance = account.getBalance() + finalDeltaAmonut;
+
+			// 계좌 잔액 체크
+			DtransactionDTO balanceCheck = mapper.balanceCheck(account.getDepositAccount());
+			
+			// 정기예금 계좌 마지막 4자리수 꺼내기
+			String productAccount = account.getProductAccount();
+	        String str[] = productAccount.split("-");
+	        String lastAccount = str[str.length -1];
+	        
+			Map<String, Object> params = new HashMap<>();
+			
+			// 만기거래내역 추가 파라미터
+			params.put("productAccount", account.getProductAccount());
+			
+			
+			if(Today.equals(expireDate)) {
+				// 정기적금 만기
+				params.put("ptype", "입금");
+				params.put("pmemo", "만기이자");
+				params.put("pdeltaAmount", finalDeltaAmonut);
+				params.put("pbalance", finalBalance);
+
+				// 만기시 이자 입금 파라미터
+				params.put("depositAccount", account.getDepositAccount());
+				params.put("userId", account.getUserId());
+				params.put("type", "입금");
+				params.put("memo", "정기적금만기");
+				params.put("deltaAmount", finalBalance);
+				params.put("balance", balanceCheck.getBalance() + finalBalance);
+				params.put("transferAccount", account.getDepositAccount());
+				
+				// 알림추가 파라미터
+				params.put("alarmCate", "정기적금만기");
+				params.put("alarmCont", "정기적금[" + lastAccount + "] 만기되었습니다.");
+				mapper.insertInterest(params);
+			}else {
+				// 정기적금 입금
+				params.put("ptype", "입금");
+				params.put("pmemo", "정기적금입금");
+				params.put("pdeltaAmount", account.getMonthlyPayment());
+				params.put("pbalance", account.getBalance() + account.getMonthlyPayment());
+
+				// 정기적금 출금 파라미터
+				params.put("depositAccount", account.getDepositAccount());
+				params.put("userId", account.getUserId());
+				params.put("type", "출금");
+				params.put("memo", "정기적금출금");
+				params.put("deltaAmount", account.getMonthlyPayment());
+				params.put("balance", balanceCheck.getBalance() - account.getMonthlyPayment());
+				params.put("transferAccount", account.getProductAccount());
+				
+				// 알림추가 파라미터
+				params.put("alarmCate", "정기적금입금");
+				params.put("alarmCont", "정기적금[" + lastAccount + "] 입금되었습니다.");
+				mapper.savingAccountScheduled(params);
+			}
+		}
+	}
+	// 정기적금 입금 스케줄링 (매달 10일)
+	@Scheduled(cron = "0 0 0 10 * *")
+	public void insertMonthlyPayment10() {
+		// 자동이체일체크
+		List<ProductDTO> productList = mapper.autoTransferDateCheck(5);
+
+		// 오늘날짜
+  	    LocalDateTime currentTime = LocalDateTime.now();
+  	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+  	    String Today = currentTime.format(formatter);
+		
+		for(ProductDTO account : productList) {
+			// 만기일
+			String expireDate = account.getExpiryDate().substring(0, 10);
+			int finalDeltaAmonut = account.getMonthlyPayment() + (int) (account.getBalance() * account.getInterestRate());
+			int finalBalance = account.getBalance() + finalDeltaAmonut;
+
+			// 계좌 잔액 체크
+			DtransactionDTO balanceCheck = mapper.balanceCheck(account.getDepositAccount());
+			
+			// 정기예금 계좌 마지막 4자리수 꺼내기
+			String productAccount = account.getProductAccount();
+	        String str[] = productAccount.split("-");
+	        String lastAccount = str[str.length -1];
+	        
+			Map<String, Object> params = new HashMap<>();
+			
+			// 만기거래내역 추가 파라미터
+			params.put("productAccount", account.getProductAccount());
+			
+			
+			if(Today.equals(expireDate)) {
+				// 정기적금 만기
+				params.put("ptype", "입금");
+				params.put("pmemo", "만기이자");
+				params.put("pdeltaAmount", finalDeltaAmonut);
+				params.put("pbalance", finalBalance);
+
+				// 만기시 이자 입금 파라미터
+				params.put("depositAccount", account.getDepositAccount());
+				params.put("userId", account.getUserId());
+				params.put("type", "입금");
+				params.put("memo", "정기적금만기");
+				params.put("deltaAmount", finalBalance);
+				params.put("balance", balanceCheck.getBalance() + finalBalance);
+				params.put("transferAccount", account.getDepositAccount());
+				
+				// 알림추가 파라미터
+				params.put("alarmCate", "정기적금만기");
+				params.put("alarmCont", "정기적금[" + lastAccount + "] 만기되었습니다.");
+				mapper.insertInterest(params);
+			}else {
+				// 정기적금 입금
+				params.put("ptype", "입금");
+				params.put("pmemo", "정기적금입금");
+				params.put("pdeltaAmount", account.getMonthlyPayment());
+				params.put("pbalance", account.getBalance() + account.getMonthlyPayment());
+
+				// 정기적금 출금 파라미터
+				params.put("depositAccount", account.getDepositAccount());
+				params.put("userId", account.getUserId());
+				params.put("type", "출금");
+				params.put("memo", "정기적금출금");
+				params.put("deltaAmount", account.getMonthlyPayment());
+				params.put("balance", balanceCheck.getBalance() - account.getMonthlyPayment());
+				params.put("transferAccount", account.getProductAccount());
+				
+				// 알림추가 파라미터
+				params.put("alarmCate", "정기적금입금");
+				params.put("alarmCont", "정기적금[" + lastAccount + "] 입금되었습니다.");
+				mapper.savingAccountScheduled(params);
+			}
+		}
+	}
+	// 정기적금 입금 스케줄링 (매달 25일)
+	@Scheduled(cron = "0 0 0 25 * *")
+	public void insertMonthlyPayment25() {
+		// 자동이체일체크
+		List<ProductDTO> productList = mapper.autoTransferDateCheck(5);
+
+		// 오늘날짜
+  	    LocalDateTime currentTime = LocalDateTime.now();
+  	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+  	    String Today = currentTime.format(formatter);
+		
+		for(ProductDTO account : productList) {
+			// 만기일
+			String expireDate = account.getExpiryDate().substring(0, 10);
+			int finalDeltaAmonut = account.getMonthlyPayment() + (int) (account.getBalance() * account.getInterestRate());
+			int finalBalance = account.getBalance() + finalDeltaAmonut;
+
+			// 계좌 잔액 체크
+			DtransactionDTO balanceCheck = mapper.balanceCheck(account.getDepositAccount());
+			
+			// 정기예금 계좌 마지막 4자리수 꺼내기
+			String productAccount = account.getProductAccount();
+	        String str[] = productAccount.split("-");
+	        String lastAccount = str[str.length -1];
+	        
+			Map<String, Object> params = new HashMap<>();
+			
+			// 만기거래내역 추가 파라미터
+			params.put("productAccount", account.getProductAccount());
+			
+			
+			if(Today.equals(expireDate)) {
+				// 정기적금 만기
+				params.put("ptype", "입금");
+				params.put("pmemo", "만기이자");
+				params.put("pdeltaAmount", finalDeltaAmonut);
+				params.put("pbalance", finalBalance);
+
+				// 만기시 이자 입금 파라미터
+				params.put("depositAccount", account.getDepositAccount());
+				params.put("userId", account.getUserId());
+				params.put("type", "입금");
+				params.put("memo", "정기적금만기");
+				params.put("deltaAmount", finalBalance);
+				params.put("balance", balanceCheck.getBalance() + finalBalance);
+				params.put("transferAccount", account.getDepositAccount());
+				
+				// 알림추가 파라미터
+				params.put("alarmCate", "정기적금만기");
+				params.put("alarmCont", "정기적금[" + lastAccount + "] 만기되었습니다.");
+				mapper.insertInterest(params);
+			}else {
+				// 정기적금 입금
+				params.put("ptype", "입금");
+				params.put("pmemo", "정기적금입금");
+				params.put("pdeltaAmount", account.getMonthlyPayment());
+				params.put("pbalance", account.getBalance() + account.getMonthlyPayment());
+
+				// 정기적금 출금 파라미터
+				params.put("depositAccount", account.getDepositAccount());
+				params.put("userId", account.getUserId());
+				params.put("type", "출금");
+				params.put("memo", "정기적금출금");
+				params.put("deltaAmount", account.getMonthlyPayment());
+				params.put("balance", balanceCheck.getBalance() - account.getMonthlyPayment());
+				params.put("transferAccount", account.getProductAccount());
+				
+				// 알림추가 파라미터
+				params.put("alarmCate", "정기적금입금");
+				params.put("alarmCont", "정기적금[" + lastAccount + "] 입금되었습니다.");
+				mapper.savingAccountScheduled(params);
+			}
+		}
+	}
 	
 	// 알림 페이지
 	@GetMapping("alarm")
@@ -648,29 +894,70 @@ public class JavaBankController {
 
 	    model.addAttribute("accountList", accountlist);
 	    
+	    // 정기예금, 정기적금 리스트 분리
+	    List<ProductDTO> depositList = new ArrayList<>();
+	    List<ProductDTO> savingAccountList = new ArrayList<>();
+	    
 	    for (ProductDTO pdto : pdtlist) {
 	    	if(pdto.getCategory().equals("정기예금")) {
-	    	    model.addAttribute("depositList", pdtlist);
+	    		depositList.add(pdto);
 	    	}else if (pdto.getCategory().equals("정기적금")) {
-	    		model.addAttribute("savingAccountList", pdtlist);
+	    		savingAccountList.add(pdto);
 	    	}
 	    }
+	    model.addAttribute("depositList", depositList);
+	    model.addAttribute("savingAccountList", savingAccountList);
+	    
 		return "pages/my_account";
 	}
 	
 	// 입출금계좌 삭제
-//	@PostMapping("account_delete")
-//	public String accountDelete(@AuthenticationPrincipal User user, RedirectAttributes redirectAttributes, @RequestParam("depositAccount") String depositAccount) {
-//		// 계좌삭제 전 메인계좌, 잔액 체크
-//		AccountDTO AccountDelCheck = mapper.AccountDelCheck(depositAccount);
-//		if(AccountDelCheck.getMainAccount().equals("Y")) {
-//			redirectAttributes.addFlashAttribute("msg", "주거래계좌는 삭제할 수 없습니다.");
-//		}else if(AccountDelCheck.getBalance() != 0) {
-//			redirectAttributes.addFlashAttribute("msg", "잔액이 남아있는 계좌는 삭제할 수 없습니다.");
-//		}
-//		
-//		return "redirect:my_account";
-//	}
+	@ResponseBody
+	@PostMapping("account_delete.ajax")
+	public String accountDelete(@AuthenticationPrincipal User user, @RequestParam("depositAccount") String depositAccount) {
+	    
+	    // 계좌삭제 전 메인계좌, 잔액 체크
+	    AccountDTO accountDelCheck = mapper.AccountDelCheck(depositAccount);
+
+	    if ("Y".equals(accountDelCheck.getMainAccount())) {
+	        return "주거래 계좌는 삭제할 수 없습니다.";
+	    } else if (accountDelCheck.getBalance() > 0) {
+	        return "잔액이 남아 있는 계좌는 삭제할 수 없습니다.";
+	    } else {
+	        // 계좌 삭제
+	        mapper.accountDelete(depositAccount);
+            return "OK";
+	    }
+	}
+	
+	// 예적금계좌 삭제
+	@ResponseBody
+	@PostMapping("product_delete.ajax")
+	public String productDelete(@AuthenticationPrincipal User user, @RequestParam("productAccount") String productAccount) {
+		
+		try {
+			// 예적금 상품 정보 확인
+			ProductDTO productCheck =  mapper.productCheck(productAccount);
+			// 입출금계좌 잔액 확인
+			DtransactionDTO balanceCheck = mapper.balanceCheck(productCheck.getDepositAccount());
+			
+			Map<String, Object> params = new HashMap<>();
+			params.put("productAccount", productAccount);
+			params.put("depositAccount", productCheck.getDepositAccount());
+			params.put("userId", productCheck.getUserId());
+			params.put("type", "입금");
+			params.put("memo", "");
+			params.put("deltaAmount", productCheck.getBalance());
+			params.put("balance", balanceCheck.getBalance() + productCheck.getBalance());
+			params.put("transferAccount", productCheck.getProductAccount());
+			System.out.println(params);
+			mapper.productDelete(params);
+			return "OK";
+		}catch(Exception e) {
+			logger.error("예적금 계좌 삭제 중 오류 발생", e);
+	        return "계좌 삭제 중 오류가 발생했습니다.";
+		}
+	}
 	
 	// 주거래계좌 상태변경
 	@ResponseBody

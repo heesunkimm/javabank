@@ -4,12 +4,14 @@ public class DtransactionDTO {
 	private int accountSeq;
 	private String depositAccount;
 	private String userId;
-	private int updateDate;
+	private String updateDate;
 	private String type;
 	private String memo;
 	private int deltaAmount;
 	private int balance;
 	private String transferAccount;
+	// 조인된 테이블 컬럼 추가
+	private String category;
 	
 	public int getAccountSeq() {
 		return accountSeq;
@@ -29,10 +31,10 @@ public class DtransactionDTO {
 	public void setUserId(String userId) {
 		this.userId = userId;
 	}
-	public int getUpdateDate() {
+	public String getUpdateDate() {
 		return updateDate;
 	}
-	public void setUpdateDate(int updateDate) {
+	public void setUpdateDate(String updateDate) {
 		this.updateDate = updateDate;
 	}
 	public String getType() {
@@ -64,5 +66,11 @@ public class DtransactionDTO {
 	}
 	public void setTransferAccount(String transferAccount) {
 		this.transferAccount = transferAccount;
+	}
+	public String getCategory() {
+		return category;
+	}
+	public void setCategory(String category) {
+		this.category = category;
 	}
 }
