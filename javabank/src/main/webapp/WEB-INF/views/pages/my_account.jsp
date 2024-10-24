@@ -42,7 +42,7 @@
                     <div class="btn_box">
                         <button type="button" onclick="location.href='account_list?depositAccount=${account.depositAccount}'">조회</button>
                         <button type="button" onclick="location.href='transfer?depositAccount=${account.depositAccount}'">이체</button>
-                        <button type="button" onclick="location.href='account_delete?depositAccount=${account.depositAccount}'">계좌삭제</button>
+                        <button class="accountDelBtn" type="button" data-deposit="${account.depositAccount}">계좌삭제</button>
                     </div>
                 </li>
                 </c:forEach>
@@ -64,7 +64,7 @@
 	                </div>
 	                <div class="btn_box">
 	                    <button type="button" onclick="location.href='product_list?productAccount=${deposit.productAccount}'">조회</button>
-	                    <button type="button" onclick="location.href='product_delete?productAccount=${deposit.productAccount}'">계좌삭제</button>
+	                    <button type="button" class="productDelBtn" data-product="${deposit.productAccount}">계좌삭제</button>
 	                </div>
 	            </li>
 			    </c:forEach>
@@ -87,7 +87,7 @@
                     </div>
                     <div class="btn_box">
                         <button type="button" onclick="location.href='product_list?productAccount=${savingAccount.productAccount}'">조회</button>
-                        <button type="button" onclick="location.href='product_delete?productAccount=${savingAccount.productAccount}'">계좌삭제</button>
+                        <button class="productDelBtn" type="button" data-product="${savingAccount.productAccount}">계좌삭제</button>
                     </div>
                 </li>
 			    </c:forEach>
@@ -101,6 +101,7 @@
 	$(document).ready(function() {
 		let csrfToken = $(".csrfToken").val();
 		
+		// 주거래계좌 변경 이벤트
 		$(".changeBtn").on("click", function() {
 			let btn = $(this);
 			let depositAccount = $(this).data("deposit");
@@ -122,6 +123,58 @@
 				}
 			});
 		});
+		
+		// 입출금계좌 삭제
+		$('.accountDelBtn').on('click', function() {
+	        let depositAccount = $(this).data('deposit');
+	        
+	        if (confirm("정말 이 계좌를 삭제하시겠습니까?")) {
+	            $.ajax({
+	                type: 'POST',
+	                url: 'account_delete.ajax',
+					headers: {"X-CSRF-TOKEN": csrfToken}, 
+	                data: {depositAccount: depositAccount},
+	                success: function(res) {
+	                	if (res === "OK") {
+	                        alert("계좌가 삭제되었습니다.");
+	                        location.reload();
+	                    } else {
+	                        alert(res);
+	                    }
+	                },
+	                error: function(err) {
+	                    console.log(err);
+	                    alert("계좌 삭제 중 오류가 발생했습니다. 다시 시도해주세요.");
+	                }
+	            });
+	        }
+	    });
+		
+		// 예적금계좌 삭제
+		$('.productDelBtn').on('click', function() {
+	        let productAccount = $(this).data('product');
+	        
+	        if (confirm("정말 이 계좌를 삭제하시겠습니까?")) {
+	            $.ajax({
+	                type: 'POST',
+	                url: 'product_delete.ajax',
+					headers: {"X-CSRF-TOKEN": csrfToken}, 
+	                data: {productAccount: productAccount},
+	                success: function(res) {
+	                	if (res === "OK") {
+	                        alert("계좌가 삭제되었습니다.");
+	                        location.reload();
+	                    } else {
+	                        alert(res);
+	                    }
+	                },
+	                error: function(err) {
+	                    console.log(err);
+	                    alert("계좌 삭제 중 오류가 발생했습니다. 다시 시도해주세요.");
+	                }
+	            });
+	        }
+	    });
 		
 		// msg가 존재하는 경우 alert
 		let msg = "${msg}";
