@@ -73,20 +73,17 @@ public class JavaBankController {
 	    return "pages/index";
 	}
 	// 읽지않은 알람
-//	@ResponseBody
-//	@PostMapping("alarmCheck.ajax")
-//	public String alarmCheck(@AuthenticationPrincipal User user, Model model, @RequestParam("alarmIsRead") String alarmIsRead) {
-//		// 로그인 정보 꺼내기
-//	    model.addAttribute("loginId", user.getUsername());
-//	    
-//	    int res = mapper.alarmCheck(user.getUsername());
-//	    if(res > 0) {
-//	    	mapper.alarmStatusUpdate(user.getUsername());
-//	    	return "";
-//	    }else {
-//	    	return "";
-//	    }
-//	}
+	@ResponseBody
+	@PostMapping("alarmCheck.ajax")
+	public int alarmCheck(@AuthenticationPrincipal User user, Model model) {
+	    // 로그인 정보 가져오기
+	    model.addAttribute("loginId", user.getUsername());
+
+	    // 읽지않은 알람걧수 가져오기
+	    int res = mapper.alarmCheck(user.getUsername());
+	    return res;
+	}
+
 	
 	// 입출금계좌 개설 페이지
 	@GetMapping("/add_account")
@@ -881,6 +878,8 @@ public class JavaBankController {
 		// 알람리스트 조회
 		List<AlarmDTO> alarmList = mapper.alarmList(user.getUsername());
 		model.addAttribute("alarmList", alarmList);
+		// 알람상태업데이트
+		mapper.alarmStatusUpdate(user.getUsername());
 		return "pages/alarm";
 	}
 	

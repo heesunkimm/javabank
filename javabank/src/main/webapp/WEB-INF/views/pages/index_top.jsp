@@ -19,7 +19,7 @@
         </div>
 
         <div class="icon_box">
-        	<a href="alarm" data-read="">
+        	<a class="alarmBtn" href="alarm">
 	            <div class="img_box">
 	                <img src="../../images/icons/alarm.png">
 	            </div>
@@ -40,16 +40,27 @@
     $(document).ready(function() {
 		let csrfToken = $(".csrfToken").val();
     	
-    	$.ajax({
-    		url: "alarmCheck.ajax",
-    		type: "post",
-    		headers: {"X-CSRF-TOKEN": csrfToken}, 
-    		data: {userId: ${loginId}},
-    		success: function(res){
-    			
-    		},error: function(err){
-    			console.log(err);
-    		}
-    	});
+		// 알람 체크 함수 정의
+		function checkAlarm() {
+			$.ajax({
+				url: "alarmCheck.ajax",
+				type: "post",
+				headers: {"X-CSRF-TOKEN": csrfToken}, 
+				datatype: "text",
+				success: function(res){
+					if (res > 0) {
+						$(".alarm_txt").text(res);
+					} else {
+						$(".alarm_txt").text("0");
+					}
+				},
+				error: function(err){
+					console.log(err);
+				}
+			});
+		}
+
+		checkAlarm();
+		setInterval(checkAlarm, 10000);
 	});
     </script>
