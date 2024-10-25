@@ -10,7 +10,8 @@
 ## Development Environment
 - Spring STS4 (Spring Boot 3.3.2)
 - Java 21
-- HTML / CSS / JavaScript
+- HTML / CSS
+- JavaScript / Jquery
 - Windows
 
 ## Technologies Used
