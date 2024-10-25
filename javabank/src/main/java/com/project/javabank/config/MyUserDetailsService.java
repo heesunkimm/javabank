@@ -34,7 +34,5 @@ public class MyUserDetailsService implements UserDetailsService {
                 .password(userDTO.getUserPw()) // 비밀번호도 필요시 가져와서 처리
                 .roles(userDTO.getUserRoles()) // 권한 설정
                 .build();
-        
 	}
-
 }

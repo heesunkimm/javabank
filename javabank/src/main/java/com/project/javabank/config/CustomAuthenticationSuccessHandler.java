@@ -17,22 +17,22 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 	        Authentication authentication) throws IOException, ServletException {
 	    String saveId = req.getParameter("saveId");
 	    String loginId = authentication.getName();
+	    System.out.println("saveId" + saveId);
+	    System.out.println("loginId" + loginId);
 	    
-	    if("on".equals(saveId)) {
+	    if ("on".equals(saveId)) { // "on"으로 체크박스 값 확인
 	        Cookie cookie = new Cookie("saveId", loginId);
 	        cookie.setMaxAge(7 * 24 * 60 * 60); // 일주일 유지
 	        cookie.setPath("/");
 	        resp.addCookie(cookie);
 	    } else {
-	        // saveId가 'on'이 아니면 쿠키 삭제
-	        Cookie cookie = new Cookie("saveId", "");
-	        cookie.setMaxAge(0); // 쿠키 만료 설정
+	        Cookie cookie = new Cookie("saveId", null);
+	        cookie.setMaxAge(0); // 쿠키 삭제
 	        cookie.setPath("/");
 	        resp.addCookie(cookie);
 	    }
 	    
-	    resp.sendRedirect("/index"); // 로그인 성공 후 리다이렉트
+	    resp.sendRedirect("/index");
 	}
-
 
 }

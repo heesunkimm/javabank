@@ -35,16 +35,11 @@
                 <button class="login_btn" type="submit">로그인</button>
             </div>
 
-            <div class="save_box">
-                <label>
-                <c:if test="${empty cookie['saveId']}">
-                	아이디저장<input type="checkbox" name="saveId" value="">
-                </c:if>
-                <c:if test="${not empty cookie['saveId']}">
-           			아이디저장<input type="checkbox" name="saveId" value="on" checked> 
-                </c:if>
-                </label>
-            </div>
+			<div class="save_box">
+			    <label>
+			        <input type="checkbox" name="saveId" value="on" <c:if test="${not empty cookie['saveId']}">checked</c:if>> 아이디 저장
+			    </label>
+			</div>
 
             <div class="join_box">
                 <a class="join_btn" href="/join">회원가입</a>
