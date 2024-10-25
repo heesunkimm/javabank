@@ -16,10 +16,12 @@ import com.project.javabank.mapper.MemberServiceMapper;
 public class MyUserDetailsService implements UserDetailsService {
 	
 	private final MemberServiceMapper mapper;
+    private final PasswordEncoder passwordEncoder;
 	
-	public MyUserDetailsService(MemberServiceMapper mapper) {
-		this.mapper = mapper;
-	}
+    public MyUserDetailsService(MemberServiceMapper mapper, PasswordEncoder passwordEncoder) {
+        this.mapper = mapper;
+        this.passwordEncoder = passwordEncoder;
+    }
 	
 	@Override
 	public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {

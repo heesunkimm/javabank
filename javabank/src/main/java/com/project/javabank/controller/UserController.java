@@ -107,6 +107,7 @@ public class UserController {
 	        return "ERROR";
 	    }
 	}
+	
 	// 인증확인
 	@ResponseBody
 	@PostMapping("/findUserInfo.ajax")
@@ -159,7 +160,7 @@ public class UserController {
 	public String updateUserPw(@RequestParam("userId") String userId, @RequestParam("userPw") String userPw) {
 		Map<String, Object> params = new HashMap<>();
 		params.put("userId", userId);
-		params.put("userPw", userPw);
+		params.put("userPw", passwordEncoder.encode(userPw));
 		
 		int res = userMapper.updateUserPw(params);
 		if(res > 0) {
