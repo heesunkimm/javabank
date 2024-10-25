@@ -111,7 +111,7 @@
 	        select a.userId, a.category, t.updateDate, t.transferAccount, row_number() over (partition by t.transferAccount order by t.updateDate desc) as rn 
 	        from JB_DEPOSIT a 
             inner join JB_Dtransaction t on a.depositAccount = t.depositAccount 
-	        where a.depositAccount = #{depositAccount} and t.transferAccount != #{depositAccount} and t.transferAccount like '0925%'
+	        where a.depositAccount = #{depositAccount} and t.transferAccount != #{depositAccount} and t.transferAccount != '0925-0925-0925-0925' and t.transferAccount like '0925%'
 	    ) where rn = 1 and rownum &lt;= 7 order by updateDate desc
 	</select>
 	<!-- db에 존재하는 계좌 체크 -->
@@ -121,6 +121,14 @@
 	<!--  계좌잔액 체크 -->
 	<select id="balanceCheck" parameterType="String" resultType="DtransactionDTO">
 	    select userId, balance, depositAccount from JB_Dtransaction where depositAccount = #{depositAccount} order by updateDate desc fetch first 1 row only
+	</select>
+	<!-- 이체한도 확인 -->
+	<select id="transferLimit" parameterType="String" resultType="int">
+		select transactionLimit from JB_DEPOSIT where depositAccount = #{depositAccount}
+	</select>
+	<!-- 오늘 거래금액 조회 -->
+	<select id="transferMoney" parameterType="String" resultType="int">
+		select sum(deltaAmount) as totalTransfer from JB_Dtransaction where depositAccount = #{depositAccount} and trunc(updateDate) = trunc(sysdate) and type like '%출금%'
 	</select>
 	<!-- 비밀번호 일치여부 확인 -->
 	<select id="accountPwCheck" parameterType="java.util.Map" resultType="String">

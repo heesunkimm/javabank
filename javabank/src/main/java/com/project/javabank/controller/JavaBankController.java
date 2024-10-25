@@ -229,14 +229,21 @@ public class JavaBankController {
 	public String transferMoney(@AuthenticationPrincipal User user, Model model,
 			@RequestParam("depositAccount") String depositAccount, @RequestParam("memo") String memo, @RequestParam("transferAccount") String transferAccount) {
 		String userId = user.getUsername();
+		
 		Map<String, Object> params = new HashMap<>();
 		params.put("userId", userId);
 		params.put("depositAccount", depositAccount);
 		params.put("meno", memo);
-		
 		// 계좌잔액 조회
 		DtransactionDTO balanceCheck = mapper.balanceCheck(depositAccount);
 		Integer balance = balanceCheck.getBalance();
+		
+		// 이체한도 확인
+		int transferLimit = mapper.transferLimit(depositAccount);
+		// 오늘 거래금액 조회
+		int transferMoney = mapper.transferMoney(depositAccount);
+		model.addAttribute("transferLimit", transferLimit);
+		model.addAttribute("transferMoney", transferMoney);
 		
 	    model.addAttribute("depositAccount", depositAccount);
 	    model.addAttribute("memo", memo);
@@ -623,16 +630,16 @@ public class JavaBankController {
 			Map<String, Object> params = new HashMap<>();
 			// 만기거래내역 추가
 			params.put("productAccount", account.getProductAccount());
-			params.put("ptype", "이자입금");
-			params.put("pmemo", "");
+			params.put("ptype", "입금");
+			params.put("pmemo", "이자입금");
 			params.put("pdeltaAmount", finalInterestRate);
 			params.put("pbalance", finalBalance);
 			
 			// 정기예금 만기액, 이자 입금 파라미터
 			params.put("depositAccount", balanceCheck.getDepositAccount());
 			params.put("userId", account.getUserId());
-			params.put("type", "정기예금만기");
-			params.put("memo", "");
+			params.put("type", "입금");
+			params.put("memo", "정기예금만기");
 			params.put("deltaAmount", finalBalance);
 			params.put("balance", balanceCheck.getBalance() + finalBalance);
 			params.put("transferAccount", account.getDepositAccount());

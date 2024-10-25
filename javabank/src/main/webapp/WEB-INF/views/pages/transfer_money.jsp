@@ -61,6 +61,8 @@
 		$(".nextBtn").on('click', function() {
 			let balance = parseFloat($(".balanceAll").val());
 			let deltaAmount = parseFloat($("input[name='deltaAmount']").val());
+			let transferLimit = ${transferLimit};
+			let transferMoney = ${transferMoney};
 			
 			// 숫자 정규표현식 변환
 			$("input[name='deltaAmount']").keyup(function() {
@@ -74,6 +76,8 @@
 		        return alert("0원 이하의 금액은 송금이 불가합니다.");
 		    } else if (deltaAmount > balance) {
 		        return alert("계좌의 잔액을 초과하는 금액은 송금할 수 없습니다.");
+		    } else if (transferMoney + deltaAmount > transferLimit) {
+		    	return alert("1일 이체한도를 초과하였습니다.");
 		    } else {
 		        $(".pwbox, .dimm").addClass('s_active');
 		    }

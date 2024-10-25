@@ -17,8 +17,6 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 	        Authentication authentication) throws IOException, ServletException {
 	    String saveId = req.getParameter("saveId");
 	    String loginId = authentication.getName();
-	    System.out.println("saveId" + saveId);
-	    System.out.println("loginId" + loginId);
 	    
 	    if ("on".equals(saveId)) { // "on"으로 체크박스 값 확인
 	        Cookie cookie = new Cookie("saveId", loginId);

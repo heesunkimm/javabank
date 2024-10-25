@@ -1,24 +1,17 @@
-# 참고용
- - https://sk-planet.gitbook.io/gui-bootcamp/2nd-week-kakao-bank/style-guide/color
- - 인증: https://www.niceapi.co.kr/#/apis?ctgrCd=0100
+# JAVABANK PROJECT
+ - JAVABANK는 카카오뱅크의 디자인과 보편적인 은행 사이트를 모티브로 만들어진 자바 기반 프로그램입니다.
 
-# 작업기간 (2주)
- - 기획 및 디자인: 
- - 개발: 
+# Introduction
+ - JAVABUCKS 프로젝트는 은행 사이트의 기본적인 기능을 구현하기 위해 작업하였습니다. 스프링 시큐리티를 이용하여 회원가입, 로그인 기능을 구현하였으며, 입출금과 예적금 상품 가입 및 정기적인 입금 내역과 알림을 트랜잭션과 스케줄링을 사용하여 구현하였습니다.
 
-# 주요기능
-- 시큐리티 (로그인)
-- 트랜잭션 (입/출금)
-- 스케줄러 
-- 공공데이터포탈
+ - 개발 기간: 2024.10.03 ~ 2024.10.25 (총 23일)
+ - 개발 인원: 1명
 
-# 페이지 구성
-- 회원가입, 로그인
-    - 회원가입 > 시큐리티 적용, 카카오인증 api 본인인증
-- 계좌 생성
-- 예금 (단리, 6개월, 1년 / 이자 2.8%, 3%)
-- 적금 (단리, 6개월, 1년 / 이자 3.3%, 3.5% / 자동이체일 (5, 10, 25일))
-- 이체한도 초기화 매일 00시
-
-# 테이블 정리
- - 
+# Development Environment
+- Spring STS4 (Spring Boot 3.3.2)
+- Java 21
+- HTML / CSS / JavaScript
+- Windows
+- Maven
+- MyBatis
+- Oracle

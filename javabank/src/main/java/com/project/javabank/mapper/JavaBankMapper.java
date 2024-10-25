@@ -84,6 +84,14 @@ public class JavaBankMapper {
 	public DtransactionDTO balanceCheck(String depositAccount) {
 		return sqlSession.selectOne("balanceCheck", depositAccount);
 	}
+	// 이체한도 확인
+	public int transferLimit(String depositAccount) {
+		return sqlSession.selectOne("transferLimit", depositAccount);
+	}
+	// 오늘 거래금액 조회 
+	public int transferMoney(String depositAccount) {
+		return sqlSession.selectOne("transferMoney", depositAccount);
+	}
 	// 비밀번호 일치여부 체크
 	public String accountPwCheck(Map<String, Object> params) {
 		return sqlSession.selectOne("accountPwCheck", params);
