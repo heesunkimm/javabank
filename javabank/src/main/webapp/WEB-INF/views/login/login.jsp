@@ -109,6 +109,16 @@
             <button class="confirm_btn confirm_btn02" type="button">인증확인</button>
         </div>
         <!-- e: 인증번호 박스 -->
+        <!-- s: 비밀번호 재설정 -->
+        <div class="pw_box" style="display: none;">
+            <label>
+                <input type="password" name="userPw" placeholder="비밀번호 입력" required>
+            </label>
+            <label>
+                <input type="password" name="userPw02" placeholder="비밀번호 확인" required>
+            </label>
+        </div>
+        <!-- e: 비밀번호 재설정 -->
         <div class="pbtn_box">
             <button class="submit_btn" type="submit">확인</button>
             <button class="close_btn" type="button" data-popup="findbypw">취소</button>
@@ -149,12 +159,10 @@
 	    
 	    // 아이디찾기
 	    $("#findbyid .submit_btn").on("click", function() {
-	    	let email01 = $("input[name='email01']").val().trim();
-			let email02 = $("select[name='email02']").val();
+	    	let email01 = $("#findbyid input[name='email01']").val().trim();
+			let email02 = $("#findbyid select[name='email02']").val();
 			let userEmail = email01 + email02;
 			
-			console.log(email01);
-	    	
 			// 이메일이 공백일 경우
 	    	if(email01 === "") {
 	    		return alert("이메일을 입력해주세요.");
@@ -181,13 +189,14 @@
 		        }
 		    });
 	    });
-	    
+
 	    // 비밀번호찾기
 	    $("#findbypw .submit_btn").on("click", function() {
 	    	let userId = $("#findbypw input[name='userId']").val().trim();
-	    	let email01 = $("input[name='email01']").val().trim();
-			let email02 = $("select[name='email02']").val();
+	    	let email01 = $("#findbypw input[name='email01']").val().trim();
+			let email02 = $("#findbypw select[name='email02']").val();
 			let userEmail = email01 + email02;
+			let userPw = $("#findbypw input[name='userPw']").val().trim();
 			
 			// 유효성 체크
 			if(userId === '') {
@@ -196,28 +205,117 @@
 				return alert("이메일을 입력해주세요.");
 			}else if(!$("#findbypw .confirm_btn01").hasClass("disabled") || !$("#findbypw .confirm_btn02").hasClass("disabled")) {
 				return alert("이메일 인증을 완료해주세요.");
+			}else if($("#findbypw .pw_box input").val().trim() === '') {
+				return alert("변경할 비밀번호를 입력해주세요.");
+			}else if($("#findbypw .pw_box input[name='userPw']").val().trim() != $("#findbypw .pw_box input[name='userPw02']").val().trim()) {
+				return alert("변경할 비밀번호와 비밀번호 확인이 일치하지 않습니다.");
 			}
 			
+			$.ajax({
+	            url: '/updateUserPw.ajax',
+	            type: 'POST',
+		        headers: {"X-CSRF-TOKEN": csrfToken},
+	            data: {
+	            	userId: userId,
+	            	userPw: userPw
+	            	},
+	            success: function (res) {
+	                if (res === 'OK') {
+	                    alert("비밀번호 변경이 완료되었습니다.");
+	                    
+	                 	// 입력필드 초기화
+	                    $("#findbypw input").val("");
+	                    $("#findbypw select").prop("selectedIndex", 0);
+	                    $("#findbypw .comfirm_box").removeClass("s_active");
+	                    $("#findbypw .pw_box").hide();
+	                    stopTimer();
+	                    $(".count_box p").text("3:00");
+	                    $(".confirm_btn01").text("인증번호 발송").removeClass("disabled").prop("disabled", false);
+	                    $("input[name='email01'], select[name='email02'], input[name='userId']").prop("disabled", false);
+	                    // 팝업창 닫기
+	                    $("#findbypw, .dimm").removeClass("s_active");
+	                } else {
+	                    alert("비밀번호 변경 실패하였습니다.\n다시 시도해주세요.");
+	                }
+	            },
+	            error: function (err) {
+	                console.error(err);
+	            }
+	        });
 	    });
 	    $("#findbypw .confirm_btn01").on("click", function() {
-	    	let email01 = $("input[name='email01']").val().trim();
+	    	let userId = $("#findbypw input[name='userId']").val().trim();
+	    	let email01 = $("#findbypw input[name='email01']").val().trim();
+			let email02 = $("#findbypw select[name='email02']").val();
+			let userEmail = email01 + email02;
 	    	
-	    	if(email01 === '') {
+			if(userId === '') {
+				return alert("아이디를 입력해주세요.");
+			}else if(email01 === '') {
 	    		return alert("이메일을 입력해주세요.");
 	    	}
-	    	
-	    	$.ajax({
+
+			$.ajax({
 		        url: "/findUserInfo.ajax",
 		        type: 'POST',
 		        headers: {"X-CSRF-TOKEN": csrfToken},
-		        data: {userEmail: userEmail},
+		        data: {
+		        	userId: userId,
+		        	userEmail: userEmail
+		        	},
 		        success: function(res) {
-		        	console.log(res);
+		        	if (res === "OK") {
+		                alert("해당 이메일로 인증번호가 발송되었습니다.");
+		                $("#findbypw input[name='userId']").prop("disabled", true);
+		                $("#findbypw input[name='email01']").prop("disabled", true);
+		                $("select[name='email02']").prop("disabled", true);
+		                $(".confirm_btn01").prop("disabled", true);
+		                $(".confirm_btn01").addClass("disabled");
+		                $("#findbypw .comfirm_box").addClass("s_active");
+		                Timer();
+		            }else if(res === "ID_FALSE"){
+		            	alert("해당 이메일로 가입된 아이디가 존재하지 않습니다.");
+		            }else if(res === "EMAIL_FALSE"){
+		            	alert("해당 아이디로 가입된 이메일이 존재하지 않습니다.");
+		            }else if(res === "FALSE"){
+		            	alert("해당 정보로 가입된 계정이 존재하지 않습니다.");
+		            }else {
+		                alert("가입정보 확인 중 오류가 발생했습니다.");
+		            }
 		        },
 		        error: function (err) {
 		            console.error("error:", err);
 		        }
 		    });
+	    });
+	    $("#findbypw .confirm_btn02").on("click", function() {
+		    let csrfToken = $(".csrfToken").val();
+			let code = $("input[name='confirmNum']").val();
+		    if(!timeout){
+		    	$.ajax({
+		            url: '/codeCheck.ajax',
+		            type: 'POST',
+			        headers: {"X-CSRF-TOKEN": csrfToken},
+		            data: {code: code},
+		            success: function (res) {
+		                if (res === 'OK') {
+		                    alert("인증 성공하였습니다.");
+		                    $("input[name='confirmNum']").prop("disabled", true);
+		                    $(".confirm_btn02").prop("disabled", true);
+		    	            $(".confirm_btn02").addClass("disabled");
+		    	            $(".pw_box").show();
+		                    stopTimer();
+		                } else {
+		                    alert("인증 실패! 다시 입력해주세요.");
+		                }
+		            },
+		            error: function (err) {
+		                console.error(err);
+		            }
+		        });
+		    } else{
+		    	alert("인증시간이 초과되어 재인증이 필요합니다.")
+		    }
 	    });
 	    
 	 	// 인증번호입력 유효시간 타이머
@@ -234,11 +332,11 @@
 		            clearInterval(timer); // 타이머 중지
 		            timeout = true; // 타이머 만료 설정
 		            $(".count_box p").text("3:00");
-		            $(".confirm_btn--01").text("재인증");
+		            $(".confirm_btn01").text("재인증");
 		            $("input[name='email01']").prop("disabled", false);
 		            $("select[name='email02']").prop("disabled", false);
-		            $(".confirm_btn--01").prop("disabled", false);
-		            $(".confirm_btn--01").removeClass("disabled");
+		            $(".confirm_btn01").prop("disabled", false);
+		            $(".confirm_btn01").removeClass("disabled");
 		        }
 		        time--;
 		    }, 1000);

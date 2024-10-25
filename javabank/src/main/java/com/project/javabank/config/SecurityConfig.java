@@ -30,7 +30,7 @@ public class SecurityConfig {
 			.authorizeHttpRequests(request -> request
 					.dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
 					.requestMatchers("/css/**", "/images/**", "/js/**").permitAll()
-					.requestMatchers("/", "/login", "/findUserById.ajax", "/findUserInfo.ajax", 
+					.requestMatchers("/", "/login", "/findUserById.ajax", "/findUserInfo.ajax", "updateUserPw.ajax", 
 							"/join", "/mailCheck.ajax", "/sendEmail.ajax", "/codeCheck.ajax", "/idCheck.ajax", 
 							"/accountCheck.ajax", "/account_delete.ajax ", "/conversionMainAccount.ajax").permitAll()
 					.anyRequest().authenticated()

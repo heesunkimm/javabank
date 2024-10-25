@@ -107,12 +107,73 @@ public class UserController {
 	        return "ERROR";
 	    }
 	}
-	
+	// 인증확인
+	@ResponseBody
+	@PostMapping("/findUserInfo.ajax")
+	public String findUserInfo(HttpServletResponse resp, HttpSession session, @RequestParam("userId") String userId, @RequestParam("userEmail") String userEmail) throws Exception {
+	    try {
+	        // 랜덤 인증번호 생성
+	        Random random = new Random();
+	        String code = String.valueOf(random.nextInt(900000) + 100000);
+	        Cookie cookie = new Cookie("checkCode", code);
+	        cookie.setMaxAge(24 * 60 * 60); // 24시간
+	        cookie.setPath("/");
+	        resp.addCookie(cookie);
+	        
+	        UserDTO dto = userMapper.findUserByEmail(userEmail);
+
+	        // 사용자 정보가 일치할 경우
+	        if (dto != null) {
+	        	if(userEmail.equals(dto.getUserEmail())) {
+	        		// 아이디와 이메일이 모두 일치할 경우
+	        		if(userId.equals(dto.getUserId())) {
+		        		MimeMessage msg = mailSender.createMimeMessage();
+		                MimeMessageHelper helper = new MimeMessageHelper(msg, true);
+		                helper.setFrom("admin@javabank.com");
+		                helper.setTo(userEmail);
+		                helper.setSubject("javabank 인증번호입니다.");
+		                helper.setText("안녕하세요 javabank입니다.\n\n" +
+		                               "javabank 인증 번호 : " + code + 
+		                               "\n\n인증번호 인증 후 비밀번호 재설정을 완료해주세요." + "\n\n--javabank--");
+		                mailSender.send(msg);
+		                return "OK";
+		        	}else {
+		        		 // 아이디불일치
+		        		return "ID_FALSE";
+		        	}
+	        	}else {
+	        		// 이메일불일치
+	        		return "EMAIL_FALSE";
+	        	}
+	        } else {
+	        	return "FALSE";
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return "ERROR"; // 일반적인 오류 처리
+	    }
+	}
+	// 비밀번호 변경
+	@ResponseBody
+	@PostMapping("/updateUserPw.ajax")
+	public String updateUserPw(@RequestParam("userId") String userId, @RequestParam("userPw") String userPw) {
+		Map<String, Object> params = new HashMap<>();
+		params.put("userId", userId);
+		params.put("userPw", userPw);
+		
+		int res = userMapper.updateUserPw(params);
+		if(res > 0) {
+			return "OK";
+		}else {
+			return "FALSE";
+		}
+	}
+
+	// 회원가입
 	@GetMapping("/join")
 	public String join(Model model, HttpServletRequest req) {
 		return "login/join";
 	}
-	// 회원가입
 	@PostMapping("/join")
 	public String joinProcess(@RequestParam Map<String, String> reqParams){
 		// 비밀번호 암호화

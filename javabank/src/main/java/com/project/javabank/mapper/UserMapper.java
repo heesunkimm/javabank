@@ -22,9 +22,9 @@ public class UserMapper {
 	public UserDTO findUserByEmail(String userEmail) {
 		return sqlSession.selectOne("findUserByEmail", userEmail);
 	}
-	// 이메일과 아이디로 유저정보 찾기
-	public UserDTO findUserInfo(Map<String, Object> params) {
-		return sqlSession.selectOne("findUserInfo", params);
+	// 비밀번호 변경
+	public int updateUserPw(Map<String, Object> params) {
+		return sqlSession.update("updateUserPw", params);
 	}
 	// 이메일 중복체크
 	public int checkEmail(String userEmail) {
