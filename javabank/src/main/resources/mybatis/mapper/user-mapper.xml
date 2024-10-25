@@ -10,6 +10,10 @@
     <select id="findUserByEmail" parameterType="String" resultType="UserDTO">
 		select userEmail, userPw, userId from JB_USER where userEmail = #{userEmail}
 	</select>
+	<!-- 이메일과 아이디로 유저정보 찾기  -->
+    <select id="findUserInfo" parameterType="java.util.Map" resultType="UserDTO">
+		select * from JB_USER where userId = #{userId} and userEmail = #{userEmail}
+	</select>
     <!-- 이메일 중복체크 -->
 	<select id="checkEmail" parameterType="String" resultType="int">
 		select count(*) from JB_USER where userEmail = #{userEmail}

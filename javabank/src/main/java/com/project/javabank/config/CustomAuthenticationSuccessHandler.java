@@ -14,23 +14,25 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest req, HttpServletResponse resp,
-			Authentication authentication) throws IOException, ServletException {
-		String saveId = req.getParameter("saveId");
-		String loginId = authentication.getName();
-		
-		if("on".equals(saveId)) {
-			Cookie cookie = new Cookie("saveId", loginId);
-			cookie.setMaxAge(7 * 24 * 60 * 60); // 일주일 유지
-			cookie.setPath("/");
-			resp.addCookie(cookie);
-		} else {
-			Cookie cookie = new Cookie("saveId", "");
-			cookie.setMaxAge(0);
-			cookie.setPath("/");
-			resp.addCookie(cookie);
-		}
-		
-		resp.sendRedirect("/index"); // 로그인 성공 후 리다이렉트
+	        Authentication authentication) throws IOException, ServletException {
+	    String saveId = req.getParameter("saveId");
+	    String loginId = authentication.getName();
+	    
+	    if("on".equals(saveId)) {
+	        Cookie cookie = new Cookie("saveId", loginId);
+	        cookie.setMaxAge(7 * 24 * 60 * 60); // 일주일 유지
+	        cookie.setPath("/");
+	        resp.addCookie(cookie);
+	    } else {
+	        // saveId가 'on'이 아니면 쿠키 삭제
+	        Cookie cookie = new Cookie("saveId", "");
+	        cookie.setMaxAge(0); // 쿠키 만료 설정
+	        cookie.setPath("/");
+	        resp.addCookie(cookie);
+	    }
+	    
+	    resp.sendRedirect("/index"); // 로그인 성공 후 리다이렉트
 	}
+
 
 }

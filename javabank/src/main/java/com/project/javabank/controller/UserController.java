@@ -14,9 +14,7 @@ import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -82,6 +80,34 @@ public class UserController {
 	    return "login/login"; 
 	}
 	
+	// 아이디찾기
+	@ResponseBody
+	@PostMapping("/findUserById.ajax")
+	public String findUserById(HttpServletResponse resp, String userEmail) throws Exception {
+	    try {
+	    	// 아이디찾기
+	        UserDTO dto = userMapper.findUserByEmail(userEmail);
+
+	        if (dto != null && userEmail.equals(dto.getUserEmail())) {
+	        	String userId = dto.getUserId();
+	            MimeMessage msg = mailSender.createMimeMessage();
+	            MimeMessageHelper helper = new MimeMessageHelper(msg, true);
+	            helper.setFrom("admin@javabank.com");
+	            helper.setTo(userEmail);
+	            helper.setSubject("javabank 아이디찾기 메일입니다.");
+	            helper.setText("안녕하세요 javabank입니다.\n\n 해당 메일로 가입된 아이디는 " + userId + " 입니다." + "\n\n --javabank--");
+	            mailSender.send(msg);
+	            return "OK";
+	        } else {
+	            System.out.println("Response: FAIL");
+	            return "FAIL";
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return "ERROR";
+	    }
+	}
+	
 	@GetMapping("/join")
 	public String join(Model model, HttpServletRequest req) {
 		return "login/join";
@@ -119,13 +145,6 @@ public class UserController {
 			return "redirect:/login?joinError";
 		}
 	}
-	
-	// 로그아웃
-	@GetMapping("/logout")
-	public String logout(HttpServletRequest req, HttpServletResponse resp) {
-		new SecurityContextLogoutHandler().logout(req, resp, SecurityContextHolder.getContext().getAuthentication());
-		return "redirect:/login?logout";
-	}
     
     // 이메일 중복 확인
 	@ResponseBody
@@ -161,7 +180,7 @@ public class UserController {
 	         // 이메일 전송 로직
 		 	 MimeMessage msg = mailSender.createMimeMessage();
 	         MimeMessageHelper helper = new MimeMessageHelper(msg, true);
-	         helper.setFrom("admin@javabucks.com");
+	         helper.setFrom("admin@javabank.com");
 	         helper.setTo(userEmail);
 	         helper.setSubject("javabank 인증번호입니다.");
 	         helper.setText("안녕하세요 javabank입니다.\n\n javabank 인증 번호 : " + code + " \n\n 인증번호 인증 후 회원가입을 완료해주세요." + "\n\n --javabank--");
@@ -199,5 +218,12 @@ public class UserController {
 	public int idCheck(@RequestParam String userId) {
 		int res = userMapper.idCheck(userId);
 		return res;
+	}
+	
+	// 로그아웃
+	@GetMapping("/logout")
+	public String logout(HttpServletRequest req, HttpServletResponse resp) {
+		new SecurityContextLogoutHandler().logout(req, resp, SecurityContextHolder.getContext().getAuthentication());
+		return "redirect:/login?logout";
 	}
 }

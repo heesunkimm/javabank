@@ -18,9 +18,13 @@ public class UserMapper {
 	public int joinUser(Map<String, Object> params) {
 		return sqlSession.insert("joinUser", params);
 	}
-	
+	// 이메일로 등록된 이메일, 비밀번호, 아이디 찾기
 	public UserDTO findUserByEmail(String userEmail) {
 		return sqlSession.selectOne("findUserByEmail", userEmail);
+	}
+	// 이메일과 아이디로 유저정보 찾기
+	public UserDTO findUserInfo(Map<String, Object> params) {
+		return sqlSession.selectOne("findUserInfo", params);
 	}
 	// 이메일 중복체크
 	public int checkEmail(String userEmail) {

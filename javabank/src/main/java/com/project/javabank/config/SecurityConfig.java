@@ -22,7 +22,6 @@ public class SecurityConfig {
 	@Bean
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
-		//return new SimplePasswordEncoder(); // 테스트용
 	}
 	
 	@Bean
@@ -31,8 +30,9 @@ public class SecurityConfig {
 			.authorizeHttpRequests(request -> request
 					.dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
 					.requestMatchers("/css/**", "/images/**", "/js/**").permitAll()
-					.requestMatchers("/", "/login", "/join", "/joinProcess", "/logout", "/findId", "/findPw", 
-							"/mailCheck.ajax", "/sendEmail.ajax", "/codeCheck.ajax", "/idCheck.ajax", "/accountCheck.ajax", "/account_delete.ajax ", "/conversionMainAccount.ajax").permitAll()
+					.requestMatchers("/", "/login", "/findUserById.ajax", "/findUserInfo.ajax", 
+							"/join", "/mailCheck.ajax", "/sendEmail.ajax", "/codeCheck.ajax", "/idCheck.ajax", 
+							"/accountCheck.ajax", "/account_delete.ajax ", "/conversionMainAccount.ajax").permitAll()
 					.anyRequest().authenticated()
 			)
 			.formLogin(form -> form					
